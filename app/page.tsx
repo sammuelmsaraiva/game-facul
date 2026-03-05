@@ -1,0 +1,111 @@
+"use client";
+
+import { useRef, useState, useCallback } from "react";
+import type { GameState, InputState, GameScreen } from "@/lib/game/types";
+import { createGameState, resetGame } from "@/lib/game/engine";
+import { createInputState } from "@/lib/game/input";
+import GameCanvas from "@/components/game-canvas";
+import MenuScreen from "@/components/menu-screen";
+import GameOverScreen from "@/components/game-over-screen";
+import VictoryScreen from "@/components/victory-screen";
+import ControlsScreen from "@/components/controls-screen";
+import CreditsScreen from "@/components/credits-screen";
+import Link from "next/link";
+
+export default function Home() {
+  const [screen, setScreen] = useState<GameScreen>("menu");
+  const [score, setScore] = useState(0);
+
+  const gameStateRef = useRef<GameState>(createGameState());
+  const inputStateRef = useRef<InputState>(createInputState());
+
+  const handlePlay = useCallback(() => {
+    gameStateRef.current = resetGame(gameStateRef.current);
+    setScreen("playing");
+  }, []);
+
+  const handleScreenChange = useCallback((newScreen: GameScreen) => {
+    setScreen(newScreen);
+    if (newScreen === "gameover" || newScreen === "victory") {
+      setScore(gameStateRef.current.player.score);
+    }
+  }, []);
+
+  const handleRetry = useCallback(() => {
+    gameStateRef.current = resetGame(gameStateRef.current);
+    setScreen("playing");
+  }, []);
+
+  const handleMenu = useCallback(() => {
+    gameStateRef.current = createGameState();
+    setScreen("menu");
+  }, []);
+
+  const handleControls = useCallback(() => {
+    setScreen("controls");
+  }, []);
+
+  const handleCredits = useCallback(() => {
+    setScreen("credits");
+  }, []);
+
+  const handleBack = useCallback(() => {
+    setScreen("menu");
+  }, []);
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center"
+      style={{ backgroundColor: "#0a0a12" }}
+    >
+      <div className="relative w-full max-w-[960px]">
+        {/* Game screens */}
+        {screen === "menu" && (
+          <MenuScreen
+            onPlay={handlePlay}
+            onControls={handleControls}
+            onCredits={handleCredits}
+          />
+        )}
+
+        {(screen === "playing" || screen === "paused") && (
+          <GameCanvas
+            gameState={gameStateRef}
+            inputState={inputStateRef}
+            onScreenChange={handleScreenChange}
+          />
+        )}
+
+        {screen === "gameover" && (
+          <GameOverScreen
+            score={score}
+            onRetry={handleRetry}
+            onMenu={handleMenu}
+          />
+        )}
+
+        {screen === "victory" && (
+          <VictoryScreen score={score} onMenu={handleMenu} />
+        )}
+
+        {screen === "controls" && (
+          <ControlsScreen onBack={handleBack} />
+        )}
+
+        {screen === "credits" && (
+          <CreditsScreen onBack={handleBack} />
+        )}
+      </div>
+
+      {/* GDD Link */}
+      <div className="mt-4 pb-4">
+        <Link
+          href="/gdd"
+          className="text-xs font-mono opacity-40 hover:opacity-80 transition-opacity"
+          style={{ color: "#00FFFF" }}
+        >
+          {"[ VER DOCUMENTO GDD ]"}
+        </Link>
+      </div>
+    </main>
+  );
+}
