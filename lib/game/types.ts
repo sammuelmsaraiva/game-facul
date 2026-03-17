@@ -199,6 +199,7 @@ export interface GameState {
   currentZone: LevelSection;
   zoneTransitionTimer: number;
   zoneTransitionName: string;
+  damageFlashTimer: number;
 }
 
 // ---------- Input ----------
