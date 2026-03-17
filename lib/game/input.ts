@@ -99,3 +99,15 @@ export function consumePressed(input: InputState) {
   input.shootPressed = false;
   input.pausePressed = false;
 }
+
+export function resetInput(input: InputState) {
+  input.left = false;
+  input.right = false;
+  input.jump = false;
+  input.shoot = false;
+  input.pause = false;
+  input.jumpPressed = false;
+  input.shootPressed = false;
+  input.pausePressed = false;
+  pressedKeys.clear();
+}

@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback } from "react";
 import type { GameState, InputState, GameScreen } from "@/lib/game/types";
 import { createGameState, resetGame } from "@/lib/game/engine";
-import { createInputState } from "@/lib/game/input";
+import { createInputState, resetInput } from "@/lib/game/input";
 import GameCanvas from "@/components/game-canvas";
 import MenuScreen from "@/components/menu-screen";
 import GameOverScreen from "@/components/game-over-screen";
@@ -20,6 +20,7 @@ export default function Home() {
   const inputStateRef = useRef<InputState>(createInputState());
 
   const handlePlay = useCallback(() => {
+    resetInput(inputStateRef.current);
     gameStateRef.current = resetGame(gameStateRef.current);
     setScreen("playing");
   }, []);
@@ -32,6 +33,7 @@ export default function Home() {
   }, []);
 
   const handleRetry = useCallback(() => {
+    resetInput(inputStateRef.current);
     gameStateRef.current = resetGame(gameStateRef.current);
     setScreen("playing");
   }, []);
