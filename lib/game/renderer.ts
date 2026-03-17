@@ -67,6 +67,11 @@ export function render(ctx: CanvasRenderingContext2D, state: GameState) {
   // HUD (drawn last, no camera offset)
   renderHUD(ctx, state);
 
+  // Zone transition overlay
+  if (state.zoneTransitionTimer > 0) {
+    renderZoneTransition(ctx, state.zoneTransitionName, state.zoneTransitionTimer);
+  }
+
   // Pause overlay
   if (state.screen === "paused") {
     renderPauseOverlay(ctx);
@@ -641,8 +646,45 @@ function renderHUD(ctx: CanvasRenderingContext2D, state: GameState) {
 function getCurrentSection(state: GameState): string {
   const px = state.player.x;
   if (px < state.level.sections.streets.endX) return "As Ruas";
-  if (px < state.level.sections.ducts.endX) return "Os Dutos";
-  return "Nucleo da IA";
+  if (px < state.level.sections.ducts.endX) return "Estruturas Elevadas";
+  return "Confronto Final";
+}
+
+// ---------- Zone Transition ----------
+function renderZoneTransition(ctx: CanvasRenderingContext2D, zoneName: string, timer: number) {
+  ctx.save();
+
+  // Fade in nos primeiros 30 frames, fade out nos últimos 30
+  let alpha = 1;
+  if (timer > 90) alpha = (120 - timer) / 30; // fade in
+  else if (timer < 30) alpha = timer / 30; // fade out
+
+  // Fundo semi-transparente
+  ctx.fillStyle = `rgba(10, 10, 26, ${0.5 * alpha})`;
+  ctx.fillRect(0, CANVAS_HEIGHT * 0.35, CANVAS_WIDTH, CANVAS_HEIGHT * 0.3);
+
+  // Linhas decorativas
+  ctx.strokeStyle = COLORS.cyan + Math.floor(alpha * 100).toString(16).padStart(2, "0");
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(CANVAS_WIDTH * 0.2, CANVAS_HEIGHT * 0.42);
+  ctx.lineTo(CANVAS_WIDTH * 0.8, CANVAS_HEIGHT * 0.42);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(CANVAS_WIDTH * 0.2, CANVAS_HEIGHT * 0.58);
+  ctx.lineTo(CANVAS_WIDTH * 0.8, CANVAS_HEIGHT * 0.58);
+  ctx.stroke();
+
+  // Nome da zona
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = COLORS.cyan;
+  ctx.shadowColor = COLORS.cyan;
+  ctx.shadowBlur = 20;
+  ctx.font = "bold 28px monospace";
+  ctx.textAlign = "center";
+  ctx.fillText(zoneName, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 8);
+
+  ctx.restore();
 }
 
 // ---------- Pause Overlay ----------
