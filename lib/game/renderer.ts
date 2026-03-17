@@ -88,6 +88,29 @@ function renderBackground(
   _camY: number,
   time: number
 ) {
+  // === CAMADA 1: Céu distante (parallax 0.1x) — estrelas e nuvens tóxicas ===
+  for (let i = 0; i < 40; i++) {
+    const starX = ((i * 193 + 50) % (CANVAS_WIDTH + 100)) - 50 - (camX * 0.05) % (CANVAS_WIDTH + 100);
+    const starY = (i * 67) % (CANVAS_HEIGHT * 0.5);
+    const twinkle = Math.sin(time * 0.02 + i * 3) > 0.3;
+    if (twinkle) {
+      ctx.fillStyle = i % 5 === 0 ? COLORS.cyan + "25" : COLORS.white + "15";
+      ctx.fillRect(starX, starY, 1, 1);
+    }
+  }
+
+  // Nuvens tóxicas distantes
+  for (let i = 0; i < 5; i++) {
+    const cloudX = ((i * 400 + time * 0.1) % (CANVAS_WIDTH + 300)) - 150 - camX * 0.1;
+    const cloudY = 30 + i * 25 + Math.sin(time * 0.005 + i) * 10;
+    const cloudW = 120 + i * 30;
+    ctx.fillStyle = COLORS.magenta + "08";
+    ctx.beginPath();
+    ctx.ellipse(cloudX + cloudW / 2, cloudY, cloudW / 2, 12 + i * 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // === CAMADA 2: Prédios (parallax 0.3x) — existente ===
   const parallax = 0.3;
   for (const b of buildings) {
     const screenX = b.x - camX * parallax;
@@ -116,6 +139,30 @@ function renderBackground(
   ctx.lineTo(CANVAS_WIDTH, GROUND_Y + 20);
   ctx.stroke();
   ctx.restore();
+
+  // === CAMADA 3: Foreground próximo (parallax 0.6x) — postes e detritos ===
+  const fgParallax = 0.6;
+  for (let i = 0; i < 15; i++) {
+    const poleBaseX = i * 500 + 200;
+    const screenX = poleBaseX - camX * fgParallax;
+    if (screenX < -20 || screenX > CANVAS_WIDTH + 20) continue;
+
+    // Poste de luz
+    ctx.fillStyle = "#0a0a16";
+    ctx.fillRect(screenX, GROUND_Y - 80, 3, 80);
+
+    // Luz do poste (intermitente)
+    const lightOn = Math.sin(time * 0.015 + i * 5) > -0.5;
+    if (lightOn) {
+      ctx.fillStyle = COLORS.cyan + "12";
+      ctx.beginPath();
+      ctx.moveTo(screenX + 1.5, GROUND_Y - 80);
+      ctx.lineTo(screenX - 15, GROUND_Y - 10);
+      ctx.lineTo(screenX + 18, GROUND_Y - 10);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
 }
 
 // ---------- Platform ----------
