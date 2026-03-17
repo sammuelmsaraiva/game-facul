@@ -80,6 +80,11 @@ export function render(ctx: CanvasRenderingContext2D, state: GameState) {
     renderZoneTransition(ctx, state.zoneTransitionName, state.zoneTransitionTimer);
   }
 
+  // Ready overlay (tutorial de controles)
+  if (state.screen === "ready") {
+    renderReadyOverlay(ctx, state.time);
+  }
+
   // Pause overlay
   if (state.screen === "paused") {
     renderPauseOverlay(ctx);
@@ -726,6 +731,84 @@ function renderHUD(ctx: CanvasRenderingContext2D, state: GameState) {
     ctx.strokeStyle = COLORS.white + "40";
     ctx.lineWidth = 1;
     ctx.strokeRect(barX, barY, barW, barH);
+  }
+
+  ctx.restore();
+}
+
+// ---------- Ready Overlay (Tutorial) ----------
+function renderReadyOverlay(ctx: CanvasRenderingContext2D, time: number) {
+  ctx.save();
+
+  // Fundo escuro
+  ctx.fillStyle = "rgba(5, 5, 16, 0.85)";
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  // Título
+  ctx.fillStyle = COLORS.cyan;
+  ctx.shadowColor = COLORS.cyan;
+  ctx.shadowBlur = 20;
+  ctx.font = "bold 32px monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("PREPARADO?", CANVAS_WIDTH / 2, 160);
+  ctx.shadowBlur = 0;
+
+  // Subtítulo
+  ctx.fillStyle = COLORS.white + "80";
+  ctx.font = "14px monospace";
+  ctx.fillText("Aprenda os controles antes de entrar na batalha", CANVAS_WIDTH / 2, 195);
+
+  // Linha decorativa
+  ctx.strokeStyle = COLORS.cyan + "40";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(CANVAS_WIDTH / 2 - 200, 215);
+  ctx.lineTo(CANVAS_WIDTH / 2 + 200, 215);
+  ctx.stroke();
+
+  // Controles
+  const controls = [
+    { key: "A / D  ou  ← →", desc: "Mover" },
+    { key: "W / ↑ / ESPACO", desc: "Pular" },
+    { key: "S / ↓", desc: "Descer de plataformas" },
+    { key: "J / CLIQUE", desc: "Atirar" },
+    { key: "ESC", desc: "Pausar" },
+  ];
+
+  const startY = 245;
+  const spacing = 42;
+
+  controls.forEach((ctrl, i) => {
+    const y = startY + i * spacing;
+
+    // Tecla
+    ctx.fillStyle = COLORS.cyan;
+    ctx.font = "bold 14px monospace";
+    ctx.textAlign = "right";
+    ctx.fillText(ctrl.key, CANVAS_WIDTH / 2 - 20, y);
+
+    // Descrição
+    ctx.fillStyle = COLORS.white + "cc";
+    ctx.font = "14px monospace";
+    ctx.textAlign = "left";
+    ctx.fillText(ctrl.desc, CANVAS_WIDTH / 2 + 20, y);
+  });
+
+  // Dica de objetivo
+  ctx.fillStyle = COLORS.magenta + "aa";
+  ctx.font = "13px monospace";
+  ctx.textAlign = "center";
+  const objY = startY + controls.length * spacing + 30;
+  ctx.fillText("Destrua os drones e derrote a OMNICORE!", CANVAS_WIDTH / 2, objY);
+
+  // Prompt piscante
+  const blink = Math.sin(time * 0.08) > 0;
+  if (blink) {
+    ctx.fillStyle = COLORS.yellow;
+    ctx.shadowColor = COLORS.yellow;
+    ctx.shadowBlur = 10;
+    ctx.font = "bold 18px monospace";
+    ctx.fillText("PRESSIONE QUALQUER TECLA PARA COMECAR", CANVAS_WIDTH / 2, objY + 60);
   }
 
   ctx.restore();

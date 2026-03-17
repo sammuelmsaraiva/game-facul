@@ -4,6 +4,7 @@
 
 export type GameScreen =
   | "menu"
+  | "ready"
   | "playing"
   | "paused"
   | "gameover"
