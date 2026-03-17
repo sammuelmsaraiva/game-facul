@@ -57,36 +57,49 @@ export default function CreditsScreen({ onBack }: CreditsScreenProps) {
       ctx.lineTo(CANVAS_WIDTH / 2 + 200, 90);
       ctx.stroke();
 
-      // Credits content
-      const credits = [
-        { role: "JOGO", name: "Neon Escape: Revolta da IA" },
-        { role: "GENERO", name: "Plataforma 2D - Cyberpunk" },
-        { role: "ENGINE", name: "HTML5 Canvas + Next.js" },
-        { role: "DESENVOLVIMENTO", name: "Projeto Academico" },
-        { role: "AUDIO", name: "Web Audio API (Sintetizado)" },
-        { role: "ANO", name: "2026" },
+      // Titulo do jogo
+      ctx.fillStyle = COLORS.white + "dd";
+      ctx.font = "bold 16px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("Neon Escape: Revolta da IA", CANVAS_WIDTH / 2, 120);
+
+      ctx.fillStyle = COLORS.cyan + "60";
+      ctx.font = "11px monospace";
+      ctx.fillText("Plataforma 2D Cyberpunk | Next.js + Canvas", CANVAS_WIDTH / 2, 140);
+
+      // Equipe
+      ctx.fillStyle = COLORS.magenta;
+      ctx.font = "bold 13px monospace";
+      ctx.fillText("EQUIPE DE DESENVOLVIMENTO", CANVAS_WIDTH / 2, 175);
+
+      const team = [
+        { name: "Sammuel Moura Saraiva", role: "Arquitetura, Motor Canvas, Deploy" },
+        { name: "Joao Vinicius P. C. B. Carvalho", role: "IA dos Inimigos, Boss Fight" },
+        { name: "Lucas Benevinuto Pereira", role: "HUD, Menus, Pontuacao" },
+        { name: "Vinicius Henrique Albino Andrade", role: "Assets, Pixel Art, Audio, Level Design" },
       ];
 
-      const startY = 130;
-      const spacing = 50;
-
-      credits.forEach((credit, i) => {
-        const y = startY + i * spacing;
-
-        // Role
-        ctx.fillStyle = COLORS.cyan + "80";
-        ctx.font = "11px monospace";
+      const teamStartY = 200;
+      team.forEach((member, i) => {
+        const y = teamStartY + i * 42;
+        ctx.fillStyle = COLORS.cyan;
+        ctx.font = "bold 13px monospace";
         ctx.textAlign = "center";
-        ctx.fillText(credit.role, CANVAS_WIDTH / 2, y);
-
-        // Name
-        ctx.fillStyle = COLORS.white + "dd";
-        ctx.font = "bold 16px monospace";
-        ctx.fillText(credit.name, CANVAS_WIDTH / 2, y + 20);
+        ctx.fillText(member.name, CANVAS_WIDTH / 2, y);
+        ctx.fillStyle = COLORS.white + "80";
+        ctx.font = "11px monospace";
+        ctx.fillText(member.role, CANVAS_WIDTH / 2, y + 16);
       });
 
+      // Disciplina
+      ctx.fillStyle = COLORS.cyan + "60";
+      ctx.font = "11px monospace";
+      const infoY = teamStartY + team.length * 42 + 15;
+      ctx.fillText("Intro. ao Desenvolvimento de Jogos - iCEV 2026.1", CANVAS_WIDTH / 2, infoY);
+      ctx.fillText("Prof. Samuel Vinicius Pereira de Oliveira", CANVAS_WIDTH / 2, infoY + 18);
+
       // Thank you
-      const tyY = startY + credits.length * spacing + 20;
+      const tyY = infoY + 50;
       const pulse = 0.7 + Math.sin(t * 0.04) * 0.3;
       ctx.fillStyle = COLORS.neonGreen;
       ctx.globalAlpha = pulse;
