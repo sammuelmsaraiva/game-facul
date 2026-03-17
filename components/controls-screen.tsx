@@ -46,12 +46,13 @@ export default function ControlsScreen({ onBack }: ControlsScreenProps) {
     const controls = [
       { key: "A / D  ou  SETAS", action: "Mover esquerda / direita" },
       { key: "W / SETA CIMA / ESPACO", action: "Pular" },
+      { key: "S / SETA BAIXO", action: "Descer de plataformas" },
       { key: "J  ou  CLIQUE ESQUERDO", action: "Atirar" },
       { key: "ESC  ou  P", action: "Pausar" },
     ];
 
-    const startY = 130;
-    const spacing = 55;
+    const startY = 120;
+    const spacing = 50;
 
     controls.forEach((ctrl, i) => {
       const y = startY + i * spacing;
