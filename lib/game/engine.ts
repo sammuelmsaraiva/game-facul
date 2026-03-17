@@ -44,10 +44,9 @@ export function createGameState(): GameState {
 
 export function resetGame(state: GameState): GameState {
   const level = generateLevel();
-  startMusic();
   return {
     ...state,
-    screen: "playing",
+    screen: "ready",
     player: createPlayer(100, 400),
     enemies: [...level.enemies],
     platforms: [...level.platforms],
@@ -68,6 +67,18 @@ export function resetGame(state: GameState): GameState {
 }
 
 export function gameUpdate(state: GameState, input: InputState): GameState {
+  // Tela "ready": qualquer tecla inicia o jogo
+  if (state.screen === "ready") {
+    const anyKey = input.left || input.right || input.jump || input.down
+      || input.shoot || input.jumpPressed || input.shootPressed;
+    if (anyKey) {
+      state.screen = "playing";
+      startMusic();
+      consumePressed(input);
+    }
+    return state;
+  }
+
   if (state.screen !== "playing" && state.screen !== "paused") {
     return state;
   }
@@ -182,7 +193,7 @@ export function gameUpdate(state: GameState, input: InputState): GameState {
 }
 
 export function gameRender(ctx: CanvasRenderingContext2D, state: GameState) {
-  if (state.screen === "playing" || state.screen === "paused") {
+  if (state.screen === "playing" || state.screen === "paused" || state.screen === "ready") {
     render(ctx, state);
   }
 }

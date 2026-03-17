@@ -76,7 +76,7 @@ export default function Home() {
           />
         )}
 
-        {(screen === "playing" || screen === "paused") && (
+        {(screen === "ready" || screen === "playing" || screen === "paused") && (
           <GameCanvas
             gameState={gameStateRef}
             inputState={inputStateRef}
