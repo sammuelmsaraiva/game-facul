@@ -257,6 +257,9 @@ function renderEnemy(
     case "drone":
       renderDrone(ctx, x, y, enemy, time);
       break;
+    case "tracker":
+      renderTracker(ctx, x, y, enemy, time);
+      break;
     case "turret":
       renderTurret(ctx, x, y, enemy, time);
       break;
@@ -304,6 +307,57 @@ function renderDrone(
   ctx.shadowBlur = 0;
   const propW = 10 + Math.sin(time * 0.5) * 5;
   ctx.fillRect(x + enemy.width / 2 - propW, y - 3, propW * 2, 2);
+}
+
+function renderTracker(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  enemy: Enemy,
+  time: number
+) {
+  const isChasing = enemy.trackingPlayer;
+
+  // Corpo triangular agressivo (apontando na direção do movimento)
+  ctx.fillStyle = isChasing ? COLORS.trackerBody : COLORS.trackerGlow;
+  ctx.shadowColor = COLORS.trackerGlow;
+  ctx.shadowBlur = isChasing ? 14 : 6;
+
+  const cx = x + enemy.width / 2;
+  const cy = y + enemy.height / 2;
+  const facingRight = enemy.direction === "right";
+
+  ctx.beginPath();
+  if (facingRight) {
+    ctx.moveTo(x + enemy.width, cy); // ponta direita
+    ctx.lineTo(x, y); // canto superior esquerdo
+    ctx.lineTo(x + 6, cy); // reentrância
+    ctx.lineTo(x, y + enemy.height); // canto inferior esquerdo
+  } else {
+    ctx.moveTo(x, cy); // ponta esquerda
+    ctx.lineTo(x + enemy.width, y); // canto superior direito
+    ctx.lineTo(x + enemy.width - 6, cy); // reentrância
+    ctx.lineTo(x + enemy.width, y + enemy.height); // canto inferior direito
+  }
+  ctx.closePath();
+  ctx.fill();
+
+  // Olho central — pulsa vermelho quando perseguindo
+  const eyeSize = isChasing ? 5 + Math.sin(time * 0.3) * 1.5 : 4;
+  ctx.fillStyle = isChasing ? COLORS.red : COLORS.magenta;
+  ctx.shadowColor = isChasing ? COLORS.red : COLORS.magenta;
+  ctx.shadowBlur = isChasing ? 10 : 4;
+  ctx.beginPath();
+  ctx.arc(cx, cy, eyeSize, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Trilha de energia quando perseguindo
+  if (isChasing) {
+    ctx.fillStyle = COLORS.trackerGlow + "30";
+    ctx.shadowBlur = 0;
+    const trailX = facingRight ? x - 8 : x + enemy.width;
+    ctx.fillRect(trailX, cy - 2, 8 + Math.sin(time * 0.4) * 3, 4);
+  }
 }
 
 function renderTurret(

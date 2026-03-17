@@ -36,6 +36,14 @@ export const DRONE_SPEED = 1.5;
 export const DRONE_HEALTH = 2;
 export const DRONE_SHOOT_COOLDOWN = 120; // frames
 
+export const TRACKER_WIDTH = 32;
+export const TRACKER_HEIGHT = 30;
+export const TRACKER_SPEED = 1.2; // patrol speed
+export const TRACKER_CHASE_SPEED = 4.0; // chase speed (GDD: 4.0 u/s)
+export const TRACKER_HEALTH = 2;
+export const TRACKER_DETECTION_RADIUS = 360; // ~6 unidades (GDD: raio 6)
+export const TRACKER_LOST_TIME = 180; // 3s at 60fps — tempo para desistir da perseguição
+
 export const TURRET_WIDTH = 32;
 export const TURRET_HEIGHT = 32;
 export const TURRET_HEALTH = 3;
@@ -57,6 +65,7 @@ export const DATA_CHIP_SCORE = 100;
 
 // Score
 export const DRONE_KILL_SCORE = 50;
+export const TRACKER_KILL_SCORE = 25;
 export const TURRET_KILL_SCORE = 75;
 export const BOSS_KILL_SCORE = 500;
 
@@ -96,6 +105,8 @@ export const COLORS = {
   playerGlow: "#00FF41",
   droneBody: "#FF6B00",
   droneGlow: "#FF4500",
+  trackerBody: "#FF00CC",
+  trackerGlow: "#CC00FF",
   turretBody: "#FF0040",
   turretGlow: "#FF0040",
   bossBody: "#FF00FF",
