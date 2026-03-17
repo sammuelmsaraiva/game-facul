@@ -402,8 +402,15 @@ function renderBoss(
 ) {
   const cx = x + enemy.width / 2;
   const cy = y + enemy.height / 2;
-  const phase2 = enemy.bossPhase === 2;
-  const pulseScale = 1 + Math.sin(time * 0.05) * 0.05;
+  const phase = enemy.bossPhase || 1;
+  const pulseSpeed = phase === 3 ? 0.1 : phase === 2 ? 0.07 : 0.05;
+  const pulseScale = 1 + Math.sin(time * pulseSpeed) * (0.03 + phase * 0.02);
+
+  // Cores por fase
+  const glowColor = phase === 3 ? COLORS.yellow : phase === 2 ? COLORS.red : COLORS.bossGlow;
+  const bodyFill = phase === 3 ? "#3a3a00" : phase === 2 ? "#3a0020" : "#1a0040";
+  const bodyStroke = phase === 3 ? COLORS.yellow : phase === 2 ? COLORS.red : COLORS.bossBody;
+  const coreColor = phase === 3 ? COLORS.yellow : phase === 2 ? COLORS.red : COLORS.magenta;
 
   ctx.save();
   ctx.translate(cx, cy);
@@ -411,24 +418,36 @@ function renderBoss(
   ctx.translate(-cx, -cy);
 
   // Outer glow ring
-  ctx.strokeStyle = phase2 ? COLORS.red + "40" : COLORS.bossGlow + "40";
-  ctx.shadowColor = phase2 ? COLORS.red : COLORS.bossGlow;
-  ctx.shadowBlur = 20;
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = glowColor + "40";
+  ctx.shadowColor = glowColor;
+  ctx.shadowBlur = phase === 3 ? 30 : 20;
+  ctx.lineWidth = phase === 3 ? 3 : 2;
   ctx.beginPath();
   ctx.arc(cx, cy, enemy.width / 2 + 10, 0, Math.PI * 2);
   ctx.stroke();
 
+  // Fase 3: segundo anel externo pulsante
+  if (phase === 3) {
+    ctx.strokeStyle = COLORS.red + "30";
+    ctx.shadowColor = COLORS.red;
+    ctx.shadowBlur = 15;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, enemy.width / 2 + 20 + Math.sin(time * 0.12) * 5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
   // Main hexagonal body
-  ctx.fillStyle = phase2 ? "#3a0020" : "#1a0040";
-  ctx.strokeStyle = phase2 ? COLORS.red : COLORS.bossBody;
-  ctx.shadowColor = phase2 ? COLORS.red : COLORS.bossGlow;
+  ctx.fillStyle = bodyFill;
+  ctx.strokeStyle = bodyStroke;
+  ctx.shadowColor = glowColor;
   ctx.shadowBlur = 15;
   ctx.lineWidth = 2;
 
+  const rotationSpeed = phase === 3 ? 0.025 : phase === 2 ? 0.015 : 0.01;
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI * 2 * i) / 6 - Math.PI / 6 + time * 0.01;
+    const angle = (Math.PI * 2 * i) / 6 - Math.PI / 6 + time * rotationSpeed;
     const px = cx + Math.cos(angle) * (enemy.width / 2);
     const py = cy + Math.sin(angle) * (enemy.height / 2);
     if (i === 0) ctx.moveTo(px, py);
@@ -439,9 +458,9 @@ function renderBoss(
   ctx.stroke();
 
   // Inner core
-  ctx.fillStyle = phase2 ? COLORS.red : COLORS.magenta;
-  ctx.shadowColor = phase2 ? COLORS.red : COLORS.magenta;
-  ctx.shadowBlur = 20;
+  ctx.fillStyle = coreColor;
+  ctx.shadowColor = coreColor;
+  ctx.shadowBlur = phase === 3 ? 30 : 20;
   ctx.beginPath();
   ctx.arc(cx, cy, 15 + Math.sin(time * 0.08) * 5, 0, Math.PI * 2);
   ctx.fill();
@@ -462,17 +481,18 @@ function renderBoss(
   ctx.fillStyle = "#333";
   ctx.fillRect(barX, barY, barW, barH);
   const healthRatio = enemy.health / enemy.maxHealth;
-  ctx.fillStyle = healthRatio > 0.5 ? COLORS.magenta : COLORS.red;
+  const barColor = phase === 3 ? COLORS.yellow : phase === 2 ? COLORS.red : COLORS.magenta;
+  ctx.fillStyle = barColor;
   ctx.fillRect(barX, barY, barW * healthRatio, barH);
   ctx.strokeStyle = COLORS.white + "40";
   ctx.lineWidth = 1;
   ctx.strokeRect(barX, barY, barW, barH);
 
-  // Boss name
+  // Boss name + fase
   ctx.fillStyle = COLORS.white;
   ctx.font = "bold 10px monospace";
   ctx.textAlign = "center";
-  ctx.fillText("OMNICORE", cx, barY - 4);
+  ctx.fillText(`OMNICORE - FASE ${phase}`, cx, barY - 4);
 
   ctx.restore();
 }

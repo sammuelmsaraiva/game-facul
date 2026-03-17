@@ -49,12 +49,16 @@ export const TURRET_HEIGHT = 32;
 export const TURRET_HEALTH = 3;
 export const TURRET_SHOOT_COOLDOWN = 90;
 
-// Boss
+// Boss (GDD: 15 HP, 3 fases)
 export const BOSS_WIDTH = 120;
 export const BOSS_HEIGHT = 100;
-export const BOSS_HEALTH = 30;
-export const BOSS_SHOOT_COOLDOWN_P1 = 60;
-export const BOSS_SHOOT_COOLDOWN_P2 = 35;
+export const BOSS_HEALTH = 15;
+export const BOSS_SHOOT_COOLDOWN_P1 = 60; // Fase 1: tiro único a cada 1s
+export const BOSS_SHOOT_COOLDOWN_P2 = 45; // Fase 2: 2 tiros a cada 0.75s
+export const BOSS_SHOOT_COOLDOWN_P3 = 30; // Fase 3: rajada a cada 0.5s
+export const BOSS_SPAWN_COOLDOWN_P1 = 600; // Fase 1: drones a cada 10s
+export const BOSS_SPAWN_COOLDOWN_P2 = 480; // Fase 2: trackers a cada 8s
+export const BOSS_SPAWN_COOLDOWN_P3 = 300; // Fase 3: ondas mistas a cada 5s
 export const BOSS_BULLET_SPREAD = 0.3; // radians
 
 // Collectibles
