@@ -25,6 +25,10 @@ import {
   BOSS_HEALTH,
   BOSS_SHOOT_COOLDOWN_P1,
   BOSS_SHOOT_COOLDOWN_P2,
+  BOSS_SHOOT_COOLDOWN_P3,
+  BOSS_SPAWN_COOLDOWN_P1,
+  BOSS_SPAWN_COOLDOWN_P2,
+  BOSS_SPAWN_COOLDOWN_P3,
   BOSS_BULLET_SPREAD,
   ENEMY_BULLET_SPEED,
   ENEMY_BULLET_DAMAGE,
@@ -289,9 +293,11 @@ function updateTurret(enemy: Enemy, state: GameState, projectiles: Projectile[])
 }
 
 function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
-  // Phase check
-  const healthPercent = enemy.health / enemy.maxHealth;
-  if (healthPercent <= 0.5 && enemy.bossPhase === 1) {
+  // Fase 1: HP 15-11, Fase 2: HP 10-6, Fase 3: HP 5-1 (GDD v2.0)
+  const hp = enemy.health;
+
+  // Transição para fase 2
+  if (hp <= 10 && enemy.bossPhase === 1) {
     enemy.bossPhase = 2;
     enemy.shootCooldown = BOSS_SHOOT_COOLDOWN_P2;
     playBossPhaseSound();
@@ -306,15 +312,38 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
     );
   }
 
-  // Slow hover movement
-  enemy.bossAttackTimer = (enemy.bossAttackTimer || 0) + 1;
-  enemy.x += Math.sin(enemy.bossAttackTimer * 0.02) * 1.5;
-  enemy.y =
-    CANVAS_HEIGHT * 0.25 + Math.sin(enemy.bossAttackTimer * 0.015) * 40;
+  // Transição para fase 3
+  if (hp <= 5 && enemy.bossPhase === 2) {
+    enemy.bossPhase = 3;
+    enemy.shootCooldown = BOSS_SHOOT_COOLDOWN_P3;
+    playBossPhaseSound();
+    shakeCamera(state.camera, 12, 40);
+    state.particles.push(
+      ...createExplosionParticles(
+        enemy.x + enemy.width / 2,
+        enemy.y + enemy.height / 2,
+        COLORS.yellow,
+        35
+      )
+    );
+  }
 
-  // Shoot
+  const phase = enemy.bossPhase!;
+
+  // Movimento hover — mais errático a cada fase
+  enemy.bossAttackTimer = (enemy.bossAttackTimer || 0) + 1;
+  const moveSpeed = phase === 3 ? 2.5 : phase === 2 ? 2.0 : 1.5;
+  enemy.x += Math.sin(enemy.bossAttackTimer * 0.02) * moveSpeed;
+  enemy.y =
+    CANVAS_HEIGHT * 0.25 + Math.sin(enemy.bossAttackTimer * 0.015) * (30 + phase * 10);
+
+  // Tiro — padrão diferente por fase
   enemy.shootTimer++;
-  const cooldown = enemy.bossPhase === 2 ? BOSS_SHOOT_COOLDOWN_P2 : BOSS_SHOOT_COOLDOWN_P1;
+  const cooldown =
+    phase === 3 ? BOSS_SHOOT_COOLDOWN_P3
+    : phase === 2 ? BOSS_SHOOT_COOLDOWN_P2
+    : BOSS_SHOOT_COOLDOWN_P1;
+
   if (enemy.shootTimer >= cooldown) {
     enemy.shootTimer = 0;
 
@@ -324,47 +353,100 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
     const dirY = state.player.y + state.player.height / 2 - cy;
     const baseAngle = Math.atan2(dirY, dirX);
 
-    // Spread shots
-    const shotCount = enemy.bossPhase === 2 ? 5 : 3;
-    for (let i = 0; i < shotCount; i++) {
-      const offset =
-        (i - Math.floor(shotCount / 2)) * BOSS_BULLET_SPREAD;
-      const angle = baseAngle + offset;
+    if (phase === 1) {
+      // Fase 1: 1 projétil direcionado
       projectiles.push({
-        x: cx,
-        y: cy,
-        width: BULLET_WIDTH + 2,
-        height: BULLET_HEIGHT + 2,
-        vx: Math.cos(angle) * ENEMY_BULLET_SPEED * 1.2,
-        vy: Math.sin(angle) * ENEMY_BULLET_SPEED * 1.2,
-        owner: "enemy",
-        damage: ENEMY_BULLET_DAMAGE,
-        alive: true,
-        trail: [],
-        color: COLORS.magenta,
+        x: cx, y: cy,
+        width: BULLET_WIDTH + 2, height: BULLET_HEIGHT + 2,
+        vx: Math.cos(baseAngle) * ENEMY_BULLET_SPEED * 1.2,
+        vy: Math.sin(baseAngle) * ENEMY_BULLET_SPEED * 1.2,
+        owner: "enemy", damage: ENEMY_BULLET_DAMAGE,
+        alive: true, trail: [], color: COLORS.magenta,
       });
+    } else if (phase === 2) {
+      // Fase 2: 2 projéteis simultâneos com leve spread
+      for (let i = 0; i < 2; i++) {
+        const offset = (i - 0.5) * BOSS_BULLET_SPREAD;
+        const angle = baseAngle + offset;
+        projectiles.push({
+          x: cx, y: cy,
+          width: BULLET_WIDTH + 2, height: BULLET_HEIGHT + 2,
+          vx: Math.cos(angle) * ENEMY_BULLET_SPEED * 1.2,
+          vy: Math.sin(angle) * ENEMY_BULLET_SPEED * 1.2,
+          owner: "enemy", damage: ENEMY_BULLET_DAMAGE,
+          alive: true, trail: [], color: COLORS.magenta,
+        });
+      }
+    } else {
+      // Fase 3: rajada de 4 projéteis em leque (GDD)
+      for (let i = 0; i < 4; i++) {
+        const offset = (i - 1.5) * BOSS_BULLET_SPREAD;
+        const angle = baseAngle + offset;
+        projectiles.push({
+          x: cx, y: cy,
+          width: BULLET_WIDTH + 3, height: BULLET_HEIGHT + 3,
+          vx: Math.cos(angle) * ENEMY_BULLET_SPEED * 1.4,
+          vy: Math.sin(angle) * ENEMY_BULLET_SPEED * 1.4,
+          owner: "enemy", damage: ENEMY_BULLET_DAMAGE,
+          alive: true, trail: [], color: COLORS.yellow,
+        });
+      }
     }
     playEnemyShootSound();
   }
 
-  // Phase 2: spawn extra drones occasionally
-  if (
-    enemy.bossPhase === 2 &&
-    enemy.bossAttackTimer! % 300 === 0
-  ) {
-    const droneCount = state.enemies.filter(
-      (e) => e.type === "drone" && e.alive
+  // Spawn de minions por fase
+  const spawnCooldown =
+    phase === 3 ? BOSS_SPAWN_COOLDOWN_P3
+    : phase === 2 ? BOSS_SPAWN_COOLDOWN_P2
+    : BOSS_SPAWN_COOLDOWN_P1;
+
+  if (enemy.bossAttackTimer! % spawnCooldown === 0) {
+    const bossX = state.level.sections.boss.startX;
+    const aliveMinions = state.enemies.filter(
+      (e) => (e.type === "drone" || e.type === "tracker") && e.alive
     ).length;
-    if (droneCount < 3) {
-      const bossX = state.level.sections.boss.startX;
+
+    if (phase === 1 && aliveMinions < 3) {
+      // Fase 1: 2 drones patrulheiros
+      for (let i = 0; i < 2; i++) {
+        state.enemies.push(
+          createDrone(
+            bossX + 100 + Math.random() * 600,
+            80 + Math.random() * 100,
+            bossX + 50, bossX + 850
+          )
+        );
+      }
+    } else if (phase === 2 && aliveMinions < 4) {
+      // Fase 2: 3 rastreadores
+      for (let i = 0; i < 3; i++) {
+        state.enemies.push(
+          createTracker(
+            bossX + 80 + Math.random() * 650,
+            80 + Math.random() * 100,
+            bossX + 50, bossX + 850
+          )
+        );
+      }
+    } else if (phase === 3 && aliveMinions < 4) {
+      // Fase 3: ondas mistas (1 drone + 2 trackers)
       state.enemies.push(
         createDrone(
           bossX + 100 + Math.random() * 600,
-          100 + Math.random() * 100,
-          bossX + 50,
-          bossX + 850
+          80 + Math.random() * 80,
+          bossX + 50, bossX + 850
         )
       );
+      for (let i = 0; i < 2; i++) {
+        state.enemies.push(
+          createTracker(
+            bossX + 80 + Math.random() * 650,
+            100 + Math.random() * 100,
+            bossX + 50, bossX + 850
+          )
+        );
+      }
     }
   }
 }
