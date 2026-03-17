@@ -83,14 +83,28 @@ export function gameUpdate(state: GameState, input: InputState): GameState {
     return state;
   }
 
-  // Pause toggle
-  if (input.pausePressed) {
-    state.screen = state.screen === "paused" ? "playing" : "paused";
+  // Pause / Unpause / Exit
+  if (state.screen === "paused") {
+    if (input.pausePressed) {
+      // ESC enquanto pausado = voltar ao menu (desistir da partida)
+      state.screen = "menu";
+      stopMusic();
+      consumePressed(input);
+      return state;
+    }
+    if (input.unpausePressed) {
+      // P enquanto pausado = continuar jogando
+      state.screen = "playing";
+      consumePressed(input);
+      return state;
+    }
     consumePressed(input);
     return state;
   }
 
-  if (state.screen === "paused") {
+  if (input.pausePressed) {
+    // ESC durante gameplay = pausar
+    state.screen = "paused";
     consumePressed(input);
     return state;
   }

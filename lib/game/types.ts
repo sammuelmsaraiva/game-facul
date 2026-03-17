@@ -214,4 +214,5 @@ export interface InputState {
   jumpPressed: boolean;
   shootPressed: boolean;
   pausePressed: boolean;
+  unpausePressed: boolean;
 }

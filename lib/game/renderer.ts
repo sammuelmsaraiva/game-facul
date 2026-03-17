@@ -869,12 +869,19 @@ function renderPauseOverlay(ctx: CanvasRenderingContext2D) {
   ctx.shadowBlur = 15;
   ctx.font = "bold 36px monospace";
   ctx.textAlign = "center";
-  ctx.fillText("PAUSADO", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 10);
+  ctx.fillText("PAUSADO", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 20);
 
   ctx.shadowBlur = 0;
-  ctx.fillStyle = COLORS.white + "80";
-  ctx.font = "14px monospace";
-  ctx.fillText("Pressione ESC ou P para continuar", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 25);
+
+  // Instrução: P para continuar
+  ctx.fillStyle = COLORS.neonGreen + "cc";
+  ctx.font = "bold 15px monospace";
+  ctx.fillText("[ P ]  Continuar", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 18);
+
+  // Instrução: ESC para sair
+  ctx.fillStyle = COLORS.red + "cc";
+  ctx.font = "bold 15px monospace";
+  ctx.fillText("[ ESC ]  Sair ao Menu", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 46);
 
   ctx.restore();
 }

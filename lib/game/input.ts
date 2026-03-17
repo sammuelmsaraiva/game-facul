@@ -15,6 +15,7 @@ export function createInputState(): InputState {
     jumpPressed: false,
     shootPressed: false,
     pausePressed: false,
+    unpausePressed: false,
   };
 }
 
@@ -30,13 +31,22 @@ const keyMap: Record<string, keyof InputState> = {
   Space: "jump",
   KeyJ: "shoot",
   Escape: "pause",
-  KeyP: "pause",
 };
 
 const pressedKeys = new Set<string>();
 
 export function setupInput(input: InputState): () => void {
   const onKeyDown = (e: KeyboardEvent) => {
+    // P = despausar (tecla separada de ESC)
+    if (e.code === "KeyP") {
+      e.preventDefault();
+      if (!pressedKeys.has(e.code)) {
+        pressedKeys.add(e.code);
+        input.unpausePressed = true;
+      }
+      return;
+    }
+
     const action = keyMap[e.code];
     if (action) {
       e.preventDefault();
@@ -51,6 +61,11 @@ export function setupInput(input: InputState): () => void {
   };
 
   const onKeyUp = (e: KeyboardEvent) => {
+    if (e.code === "KeyP") {
+      e.preventDefault();
+      pressedKeys.delete(e.code);
+      return;
+    }
     const action = keyMap[e.code];
     if (action) {
       e.preventDefault();
@@ -102,6 +117,7 @@ export function consumePressed(input: InputState) {
   input.jumpPressed = false;
   input.shootPressed = false;
   input.pausePressed = false;
+  input.unpausePressed = false;
 }
 
 export function resetInput(input: InputState) {
@@ -114,5 +130,6 @@ export function resetInput(input: InputState) {
   input.jumpPressed = false;
   input.shootPressed = false;
   input.pausePressed = false;
+  input.unpausePressed = false;
   pressedKeys.clear();
 }
