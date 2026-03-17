@@ -532,28 +532,6 @@ function renderBoss(
   ctx.arc(cx, cy, 6, 0, Math.PI * 2);
   ctx.fill();
 
-  // Health bar
-  ctx.shadowBlur = 0;
-  const barW = enemy.width;
-  const barH = 6;
-  const barX = x;
-  const barY = y - 15;
-  ctx.fillStyle = "#333";
-  ctx.fillRect(barX, barY, barW, barH);
-  const healthRatio = enemy.health / enemy.maxHealth;
-  const barColor = phase === 3 ? COLORS.yellow : phase === 2 ? COLORS.red : COLORS.magenta;
-  ctx.fillStyle = barColor;
-  ctx.fillRect(barX, barY, barW * healthRatio, barH);
-  ctx.strokeStyle = COLORS.white + "40";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(barX, barY, barW, barH);
-
-  // Boss name + fase
-  ctx.fillStyle = COLORS.white;
-  ctx.font = "bold 10px monospace";
-  ctx.textAlign = "center";
-  ctx.fillText(`OMNICORE - FASE ${phase}`, cx, barY - 4);
-
   ctx.restore();
 }
 
@@ -701,6 +679,40 @@ function renderHUD(ctx: CanvasRenderingContext2D, state: GameState) {
   ctx.font = "10px monospace";
   ctx.textAlign = "right";
   ctx.fillText(section.toUpperCase(), CANVAS_WIDTH - 16, 48);
+
+  // Boss HP bar — topo central (GDD: aparece apenas na Zona 3)
+  const boss = state.enemies.find((e) => e.type === "boss" && e.alive);
+  if (boss && state.player.x >= state.level.sections.boss.startX) {
+    const barW = 300;
+    const barH = 10;
+    const barX = CANVAS_WIDTH / 2 - barW / 2;
+    const barY = 16;
+    const phase = boss.bossPhase || 1;
+    const healthRatio = boss.health / boss.maxHealth;
+    const barColor = phase === 3 ? COLORS.yellow : phase === 2 ? COLORS.red : COLORS.magenta;
+
+    // Nome do boss
+    ctx.fillStyle = COLORS.white;
+    ctx.font = "bold 12px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(`OMNICORE - FASE ${phase}`, CANVAS_WIDTH / 2, barY - 4);
+
+    // Fundo da barra
+    ctx.fillStyle = "#222";
+    ctx.fillRect(barX, barY, barW, barH);
+
+    // Barra de vida
+    ctx.fillStyle = barColor;
+    ctx.shadowColor = barColor;
+    ctx.shadowBlur = 6;
+    ctx.fillRect(barX, barY, barW * healthRatio, barH);
+    ctx.shadowBlur = 0;
+
+    // Borda
+    ctx.strokeStyle = COLORS.white + "40";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, barY, barW, barH);
+  }
 
   ctx.restore();
 }
