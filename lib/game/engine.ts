@@ -12,7 +12,7 @@ import { createCamera, updateCamera } from "./camera";
 import { updateParticles } from "./particles";
 import { consumePressed } from "./input";
 import { render } from "./renderer";
-import { playCollectSound, playVictorySound, playGameOverSound } from "./audio";
+import { playCollectSound, playVictorySound, playGameOverSound, startMusic, stopMusic } from "./audio";
 import { createCollectParticles } from "./particles";
 import { COLORS } from "./constants";
 
@@ -43,6 +43,7 @@ export function createGameState(): GameState {
 
 export function resetGame(state: GameState): GameState {
   const level = generateLevel();
+  startMusic();
   return {
     ...state,
     screen: "playing",
@@ -157,12 +158,14 @@ export function gameUpdate(state: GameState, input: InputState): GameState {
   // Check game over
   if (!state.player.alive) {
     state.screen = "gameover";
+    stopMusic();
     playGameOverSound();
   }
 
   // Check victory
   if (state.bossDefeated) {
     state.screen = "victory";
+    stopMusic();
     playVictorySound();
   }
 

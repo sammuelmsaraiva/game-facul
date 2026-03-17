@@ -97,3 +97,129 @@ export function playBossPhaseSound() {
   playTone(100, 0.5, "sawtooth", 0.1, 300);
   setTimeout(() => playTone(200, 0.3, "square", 0.08, 500), 300);
 }
+
+// ============================
+// Música de Fundo Synthwave
+// ============================
+
+let musicInterval: ReturnType<typeof setInterval> | null = null;
+let musicPlaying = false;
+
+// Progressão de notas synthwave em Dó menor (dark/tense)
+const BASS_NOTES = [65.41, 73.42, 82.41, 77.78]; // C2, D2, E2, Eb2
+const MELODY_NOTES = [
+  [261.63, 311.13, 392.00], // Cm
+  [293.66, 349.23, 440.00], // Dm
+  [329.63, 392.00, 493.88], // Em
+  [311.13, 369.99, 466.16], // Ebm
+];
+
+let musicStep = 0;
+
+function playMusicStep() {
+  try {
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    const stepDuration = 0.4;
+
+    const chordIndex = Math.floor(musicStep / 4) % BASS_NOTES.length;
+
+    // Bass line — sawtooth grave
+    const bassOsc = ctx.createOscillator();
+    const bassGain = ctx.createGain();
+    const bassFilter = ctx.createBiquadFilter();
+    bassOsc.type = "sawtooth";
+    bassOsc.frequency.setValueAtTime(BASS_NOTES[chordIndex], now);
+    bassFilter.type = "lowpass";
+    bassFilter.frequency.setValueAtTime(200, now);
+    bassGain.gain.setValueAtTime(0.04, now);
+    bassGain.gain.exponentialRampToValueAtTime(0.001, now + stepDuration);
+    bassOsc.connect(bassFilter);
+    bassFilter.connect(bassGain);
+    bassGain.connect(ctx.destination);
+    bassOsc.start(now);
+    bassOsc.stop(now + stepDuration);
+
+    // Kick no tempo forte (a cada 4 steps)
+    if (musicStep % 4 === 0) {
+      const kickOsc = ctx.createOscillator();
+      const kickGain = ctx.createGain();
+      kickOsc.type = "sine";
+      kickOsc.frequency.setValueAtTime(150, now);
+      kickOsc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+      kickGain.gain.setValueAtTime(0.06, now);
+      kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      kickOsc.connect(kickGain);
+      kickGain.connect(ctx.destination);
+      kickOsc.start(now);
+      kickOsc.stop(now + 0.15);
+    }
+
+    // Hi-hat nos offbeats
+    if (musicStep % 2 === 1) {
+      const noiseLen = 0.05;
+      const bufferSize = ctx.sampleRate * noiseLen;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * 0.3;
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const hihatGain = ctx.createGain();
+      const hihatFilter = ctx.createBiquadFilter();
+      hihatFilter.type = "highpass";
+      hihatFilter.frequency.setValueAtTime(8000, now);
+      hihatGain.gain.setValueAtTime(0.02, now);
+      hihatGain.gain.exponentialRampToValueAtTime(0.001, now + noiseLen);
+      noise.connect(hihatFilter);
+      hihatFilter.connect(hihatGain);
+      hihatGain.connect(ctx.destination);
+      noise.start(now);
+    }
+
+    // Arpejo melódico (nota a cada step)
+    const chord = MELODY_NOTES[chordIndex];
+    const noteIndex = musicStep % chord.length;
+    const melodyOsc = ctx.createOscillator();
+    const melodyGain = ctx.createGain();
+    const melodyFilter = ctx.createBiquadFilter();
+    melodyOsc.type = "square";
+    melodyOsc.frequency.setValueAtTime(chord[noteIndex], now);
+    melodyFilter.type = "lowpass";
+    melodyFilter.frequency.setValueAtTime(1500, now);
+    melodyFilter.frequency.exponentialRampToValueAtTime(400, now + stepDuration * 0.8);
+    melodyGain.gain.setValueAtTime(0.02, now);
+    melodyGain.gain.exponentialRampToValueAtTime(0.001, now + stepDuration * 0.8);
+    melodyOsc.connect(melodyFilter);
+    melodyFilter.connect(melodyGain);
+    melodyGain.connect(ctx.destination);
+    melodyOsc.start(now);
+    melodyOsc.stop(now + stepDuration * 0.8);
+
+    musicStep++;
+  } catch {
+    // Audio not available
+  }
+}
+
+export function startMusic() {
+  if (musicPlaying) return;
+  musicPlaying = true;
+  musicStep = 0;
+  // 150 BPM → 400ms per beat, subdividido em steps de 200ms
+  musicInterval = setInterval(playMusicStep, 200);
+}
+
+export function stopMusic() {
+  if (!musicPlaying) return;
+  musicPlaying = false;
+  if (musicInterval) {
+    clearInterval(musicInterval);
+    musicInterval = null;
+  }
+}
+
+export function isMusicPlaying(): boolean {
+  return musicPlaying;
+}
