@@ -53,6 +53,12 @@ export default function Home() {
     setScreen("menu");
   }, []);
 
+  const handleExit = useCallback(() => {
+    window.close();
+    // Fallback: se window.close() não funcionar (maioria dos navegadores bloqueia)
+    // mostra uma mensagem ou volta ao menu
+  }, []);
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center"
       style={{ backgroundColor: "#0a0a12" }}
@@ -64,6 +70,7 @@ export default function Home() {
             onPlay={handlePlay}
             onControls={handleControls}
             onCredits={handleCredits}
+            onExit={handleExit}
           />
         )}
 
