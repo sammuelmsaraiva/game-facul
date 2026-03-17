@@ -50,7 +50,7 @@ export interface Player {
 }
 
 // ---------- Enemies ----------
-export type EnemyType = "drone" | "turret" | "boss";
+export type EnemyType = "drone" | "tracker" | "turret" | "boss";
 
 export interface Enemy {
   x: number;
@@ -72,6 +72,11 @@ export interface Enemy {
   // Boss-specific
   bossPhase?: number;
   bossAttackTimer?: number;
+  // Tracker-specific
+  trackingPlayer?: boolean;
+  lostPlayerTimer?: number;
+  homeX?: number;
+  homeY?: number;
 }
 
 // ---------- Platforms ----------

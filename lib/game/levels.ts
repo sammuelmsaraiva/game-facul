@@ -17,7 +17,7 @@ import {
   DATA_CHIP_SCORE,
   COLORS,
 } from "./constants";
-import { createDrone, createTurret, createBoss } from "./enemies";
+import { createDrone, createTracker, createTurret, createBoss } from "./enemies";
 
 export function generateLevel(): LevelData {
   const totalWidth = STREETS_WIDTH + DUCTS_WIDTH + BOSS_ARENA_WIDTH;
@@ -188,15 +188,19 @@ export function generateLevel(): LevelData {
     }
   }
 
-  // Duct enemies (faster drones + turrets)
+  // Duct enemies (drones + trackers + turrets)
   enemies.push(createDrone(ductsStart + 300, GROUND_Y - 220, ductsStart + 200, ductsStart + 500));
+  enemies.push(createTracker(ductsStart + 550, GROUND_Y - 160, ductsStart + 400, ductsStart + 700));
   enemies.push(createDrone(ductsStart + 800, GROUND_Y - 200, ductsStart + 600, ductsStart + 1000));
   enemies.push(createTurret(ductsStart + 600, GROUND_Y - PLATFORM_HEIGHT - 32));
   enemies.push(createTurret(ductsStart + 1100, GROUND_Y - 192));
+  enemies.push(createTracker(ductsStart + 1200, GROUND_Y - 180, ductsStart + 1050, ductsStart + 1400));
   enemies.push(createDrone(ductsStart + 1400, GROUND_Y - 200, ductsStart + 1300, ductsStart + 1600));
   enemies.push(createTurret(ductsStart + 1700, GROUND_Y - PLATFORM_HEIGHT - 32));
+  enemies.push(createTracker(ductsStart + 1900, GROUND_Y - 170, ductsStart + 1750, ductsStart + 2100));
   enemies.push(createDrone(ductsStart + 2000, GROUND_Y - 210, ductsStart + 1900, ductsStart + 2200));
   enemies.push(createTurret(ductsStart + 2350, GROUND_Y - 142));
+  enemies.push(createTracker(ductsStart + 2550, GROUND_Y - 190, ductsStart + 2400, ductsStart + 2750));
   enemies.push(createDrone(ductsStart + 2700, GROUND_Y - 200, ductsStart + 2500, ductsStart + 2900));
   enemies.push(createTurret(ductsStart + 3100, GROUND_Y - PLATFORM_HEIGHT - 32));
 

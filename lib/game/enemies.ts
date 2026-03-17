@@ -9,6 +9,13 @@ import {
   DRONE_SPEED,
   DRONE_HEALTH,
   DRONE_SHOOT_COOLDOWN,
+  TRACKER_WIDTH,
+  TRACKER_HEIGHT,
+  TRACKER_SPEED,
+  TRACKER_CHASE_SPEED,
+  TRACKER_HEALTH,
+  TRACKER_DETECTION_RADIUS,
+  TRACKER_LOST_TIME,
   TURRET_WIDTH,
   TURRET_HEIGHT,
   TURRET_HEALTH,
@@ -26,6 +33,7 @@ import {
   TRAIL_LENGTH,
   COLORS,
   DRONE_KILL_SCORE,
+  TRACKER_KILL_SCORE,
   TURRET_KILL_SCORE,
   BOSS_KILL_SCORE,
   CANVAS_HEIGHT,
@@ -52,6 +60,31 @@ export function createDrone(x: number, y: number, patrolMinX: number, patrolMaxX
     patrolMinX,
     patrolMaxX,
     animTimer: 0,
+  };
+}
+
+export function createTracker(x: number, y: number, patrolMinX: number, patrolMaxX: number): Enemy {
+  return {
+    x,
+    y,
+    width: TRACKER_WIDTH,
+    height: TRACKER_HEIGHT,
+    vx: TRACKER_SPEED,
+    vy: 0,
+    type: "tracker",
+    health: TRACKER_HEALTH,
+    maxHealth: TRACKER_HEALTH,
+    alive: true,
+    direction: "right",
+    shootCooldown: 0,
+    shootTimer: 0,
+    patrolMinX,
+    patrolMaxX,
+    animTimer: 0,
+    trackingPlayer: false,
+    lostPlayerTimer: 0,
+    homeX: x,
+    homeY: y,
   };
 }
 
@@ -110,13 +143,16 @@ export function updateEnemies(state: GameState): Projectile[] {
 
     // Check if player is near enough to activate
     const distToPlayer = Math.abs(enemy.x - player.x);
-    const activationRange = enemy.type === "boss" ? 9999 : 600;
+    const activationRange = enemy.type === "boss" ? 9999 : enemy.type === "tracker" ? 800 : 600;
 
     if (distToPlayer > activationRange) continue;
 
     switch (enemy.type) {
       case "drone":
         updateDrone(enemy, state, newProjectiles);
+        break;
+      case "tracker":
+        updateTracker(enemy, state);
         break;
       case "turret":
         updateTurret(enemy, state, newProjectiles);
@@ -171,6 +207,55 @@ function updateDrone(enemy: Enemy, state: GameState, projectiles: Projectile[]) 
       playEnemyShootSound();
     }
   }
+}
+
+function updateTracker(enemy: Enemy, state: GameState) {
+  const player = state.player;
+  const dx = player.x - enemy.x;
+  const dy = player.y - enemy.y;
+  const distToPlayer = Math.sqrt(dx * dx + dy * dy);
+
+  // Detecção: player dentro do raio?
+  if (distToPlayer <= TRACKER_DETECTION_RADIUS) {
+    enemy.trackingPlayer = true;
+    enemy.lostPlayerTimer = 0;
+  } else if (enemy.trackingPlayer) {
+    // Fora do raio — começa contagem para desistir
+    enemy.lostPlayerTimer = (enemy.lostPlayerTimer || 0) + 1;
+    if (enemy.lostPlayerTimer! >= TRACKER_LOST_TIME) {
+      enemy.trackingPlayer = false;
+      enemy.lostPlayerTimer = 0;
+    }
+  }
+
+  if (enemy.trackingPlayer) {
+    // Perseguição: move em direção ao player
+    const len = distToPlayer || 1;
+    enemy.vx = (dx / len) * TRACKER_CHASE_SPEED;
+    enemy.vy = (dy / len) * TRACKER_CHASE_SPEED;
+    enemy.direction = dx > 0 ? "right" : "left";
+  } else {
+    // Patrulha horizontal (sem tiro)
+    enemy.vy = 0;
+    enemy.vx = enemy.direction === "right" ? TRACKER_SPEED : -TRACKER_SPEED;
+
+    if (enemy.x <= enemy.patrolMinX) {
+      enemy.x = enemy.patrolMinX;
+      enemy.vx = TRACKER_SPEED;
+      enemy.direction = "right";
+    }
+    if (enemy.x >= enemy.patrolMaxX) {
+      enemy.x = enemy.patrolMaxX;
+      enemy.vx = -TRACKER_SPEED;
+      enemy.direction = "left";
+    }
+
+    // Hover bob sutil durante patrulha
+    enemy.y += Math.sin(enemy.animTimer * 0.06) * 0.2;
+  }
+
+  enemy.x += enemy.vx;
+  enemy.y += enemy.vy;
 }
 
 function updateTurret(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
@@ -310,6 +395,8 @@ export function damageEnemy(enemy: Enemy, damage: number, state: GameState) {
         ? COLORS.bossGlow
         : enemy.type === "drone"
         ? COLORS.droneGlow
+        : enemy.type === "tracker"
+        ? COLORS.trackerGlow
         : COLORS.turretGlow;
 
     state.particles.push(
@@ -325,6 +412,9 @@ export function damageEnemy(enemy: Enemy, damage: number, state: GameState) {
     switch (enemy.type) {
       case "drone":
         state.player.score += DRONE_KILL_SCORE;
+        break;
+      case "tracker":
+        state.player.score += TRACKER_KILL_SCORE;
         break;
       case "turret":
         state.player.score += TURRET_KILL_SCORE;
