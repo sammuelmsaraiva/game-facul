@@ -196,7 +196,9 @@ export function updatePlayer(
         { x: enemy.x, y: enemy.y, width: enemy.width, height: enemy.height }
       )
     ) {
-      damagePlayer(player, 1, state);
+      // GDD: contato com boss causa 2 HP de dano, demais inimigos 1 HP
+      const contactDamage = enemy.type === "boss" ? 2 : 1;
+      damagePlayer(player, contactDamage, state);
     }
   }
 
