@@ -70,7 +70,7 @@ export default function MenuScreen({ onPlay, onControls, onCredits, onExit }: Me
       }
 
       // Title
-      const titleY = 140 + Math.sin(t * 0.03) * 5;
+      const titleY = 180 + Math.sin(t * 0.03) * 5;
 
       // Title glow
       ctx.save();
@@ -96,9 +96,9 @@ export default function MenuScreen({ onPlay, onControls, onCredits, onExit }: Me
       ctx.lineTo(CANVAS_WIDTH / 2 + 200, titleY + 55);
       ctx.stroke();
 
-      // Menu items
-      const startY = 280;
-      const itemSpacing = 45;
+      // Menu items (4 itens centrados verticalmente)
+      const startY = 340;
+      const itemSpacing = 55;
 
       for (let i = 0; i < menuItems.length; i++) {
         const itemY = startY + i * itemSpacing;
