@@ -207,6 +207,7 @@ export interface InputState {
   left: boolean;
   right: boolean;
   jump: boolean;
+  down: boolean;
   shoot: boolean;
   pause: boolean;
   jumpPressed: boolean;

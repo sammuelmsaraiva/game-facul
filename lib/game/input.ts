@@ -9,6 +9,7 @@ export function createInputState(): InputState {
     left: false,
     right: false,
     jump: false,
+    down: false,
     shoot: false,
     pause: false,
     jumpPressed: false,
@@ -21,9 +22,11 @@ const keyMap: Record<string, keyof InputState> = {
   ArrowLeft: "left",
   ArrowRight: "right",
   ArrowUp: "jump",
+  ArrowDown: "down",
   KeyA: "left",
   KeyD: "right",
   KeyW: "jump",
+  KeyS: "down",
   Space: "jump",
   KeyJ: "shoot",
   Escape: "pause",
@@ -73,6 +76,7 @@ export function setupInput(input: InputState): () => void {
     input.left = false;
     input.right = false;
     input.jump = false;
+    input.down = false;
     input.shoot = false;
     input.pause = false;
     pressedKeys.clear();
@@ -104,6 +108,7 @@ export function resetInput(input: InputState) {
   input.left = false;
   input.right = false;
   input.jump = false;
+  input.down = false;
   input.shoot = false;
   input.pause = false;
   input.jumpPressed = false;

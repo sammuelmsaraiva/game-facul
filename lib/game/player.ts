@@ -19,6 +19,7 @@ import {
   GRAVITY,
   MAX_FALL_SPEED,
   VOID_Y,
+  GROUND_Y,
   TRAIL_LENGTH,
   COLORS,
 } from "./constants";
@@ -89,6 +90,10 @@ export function updatePlayer(
   // Platform collisions
   player.isGrounded = false;
   for (const platform of state.platforms) {
+    // Drop-through: S/↓ permite cair por plataformas flutuantes (não-chão)
+    const isGroundPlatform = platform.y >= GROUND_Y;
+    if (input.down && !isGroundPlatform) continue;
+
     const playerRect = {
       x: player.x,
       y: player.y,
