@@ -32,8 +32,9 @@ export const TRAIL_LENGTH = 5;
 // Enemies
 export const DRONE_WIDTH = 36;
 export const DRONE_HEIGHT = 28;
-export const DRONE_SPEED = 1.5;
-export const DRONE_HEALTH = 2;
+export const DRONE_SPEED = 2.0; // GDD: 2.0 u/s na Zona 1
+export const DRONE_SPEED_Z2 = 3.5; // GDD: 3.5 u/s na Zona 2
+export const DRONE_HEALTH = 1; // GDD: 1 HP
 export const DRONE_SHOOT_COOLDOWN = 120; // frames
 
 export const TRACKER_WIDTH = 32;
