@@ -35,6 +35,9 @@ export function createGameState(): GameState {
     deltaTime: 1,
     bossDefeated: false,
     screenShake: 0,
+    currentZone: "streets",
+    zoneTransitionTimer: 0,
+    zoneTransitionName: "",
   };
 }
 
@@ -55,6 +58,9 @@ export function resetGame(state: GameState): GameState {
     deltaTime: 1,
     bossDefeated: false,
     screenShake: 0,
+    currentZone: "streets",
+    zoneTransitionTimer: 0,
+    zoneTransitionName: "",
   };
 }
 
@@ -126,6 +132,27 @@ export function gameUpdate(state: GameState, input: InputState): GameState {
 
   // Update particles
   state.particles = updateParticles(state.particles);
+
+  // Detecção de mudança de zona
+  const px = state.player.x;
+  let newZone: typeof state.currentZone = "streets";
+  if (px >= state.level.sections.boss.startX) newZone = "boss";
+  else if (px >= state.level.sections.ducts.startX) newZone = "ducts";
+
+  if (newZone !== state.currentZone) {
+    state.currentZone = newZone;
+    state.zoneTransitionTimer = 120; // 2 segundos a 60fps
+    const zoneNames = {
+      streets: "AS RUAS",
+      ducts: "ESTRUTURAS ELEVADAS",
+      boss: "CONFRONTO FINAL",
+    };
+    state.zoneTransitionName = zoneNames[newZone];
+  }
+
+  if (state.zoneTransitionTimer > 0) {
+    state.zoneTransitionTimer--;
+  }
 
   // Check game over
   if (!state.player.alive) {

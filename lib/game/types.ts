@@ -196,6 +196,9 @@ export interface GameState {
   deltaTime: number;
   bossDefeated: boolean;
   screenShake: number;
+  currentZone: LevelSection;
+  zoneTransitionTimer: number;
+  zoneTransitionName: string;
 }
 
 // ---------- Input ----------
