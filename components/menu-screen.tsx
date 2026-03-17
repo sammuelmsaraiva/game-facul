@@ -8,9 +8,10 @@ interface MenuScreenProps {
   onPlay: () => void;
   onControls: () => void;
   onCredits: () => void;
+  onExit: () => void;
 }
 
-export default function MenuScreen({ onPlay, onControls, onCredits }: MenuScreenProps) {
+export default function MenuScreen({ onPlay, onControls, onCredits, onExit }: MenuScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeRef = useRef(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -19,6 +20,7 @@ export default function MenuScreen({ onPlay, onControls, onCredits }: MenuScreen
     { label: "JOGAR", action: onPlay },
     { label: "CONTROLES", action: onControls },
     { label: "CREDITOS", action: onCredits },
+    { label: "SAIR", action: onExit },
   ];
 
   useEffect(() => {
@@ -95,8 +97,8 @@ export default function MenuScreen({ onPlay, onControls, onCredits }: MenuScreen
       ctx.stroke();
 
       // Menu items
-      const startY = 290;
-      const itemSpacing = 50;
+      const startY = 280;
+      const itemSpacing = 45;
 
       for (let i = 0; i < menuItems.length; i++) {
         const itemY = startY + i * itemSpacing;
