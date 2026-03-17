@@ -500,6 +500,7 @@ export function damageEnemy(enemy: Enemy, damage: number, state: GameState) {
         break;
       case "turret":
         state.player.score += TURRET_KILL_SCORE;
+        state.player.ammo += 5; // GDD: drone atirador dropa +5 munições
         break;
       case "boss":
         state.player.score += BOSS_KILL_SCORE;

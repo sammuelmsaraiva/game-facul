@@ -67,10 +67,10 @@ export const HEALTH_RESTORE = 1;
 export const AMMO_RESTORE = 10;
 export const DATA_CHIP_SCORE = 100;
 
-// Score
-export const DRONE_KILL_SCORE = 50;
+// Score (GDD v2.0: drone=10, rastreador=25, atirador=40)
+export const DRONE_KILL_SCORE = 10;
 export const TRACKER_KILL_SCORE = 25;
-export const TURRET_KILL_SCORE = 75;
+export const TURRET_KILL_SCORE = 40;
 export const BOSS_KILL_SCORE = 500;
 
 // Camera
