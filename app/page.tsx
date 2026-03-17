@@ -57,7 +57,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center"
       style={{ backgroundColor: "#0a0a12" }}
     >
-      <div className="relative w-full max-w-[960px]">
+      <div className="relative w-full max-w-[1280px]">
         {/* Game screens */}
         {screen === "menu" && (
           <MenuScreen
