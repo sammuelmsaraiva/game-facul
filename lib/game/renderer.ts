@@ -328,6 +328,20 @@ function renderEnemy(
       break;
   }
 
+  // Barra de HP acima do inimigo (exceto boss que tem HUD próprio, e drones de 1 HP)
+  if (enemy.type !== "boss" && enemy.maxHealth > 1 && enemy.health < enemy.maxHealth) {
+    const barW = enemy.width;
+    const barH = 3;
+    const barX = x;
+    const barY = y - 8;
+    const ratio = enemy.health / enemy.maxHealth;
+
+    ctx.fillStyle = "#333";
+    ctx.fillRect(barX, barY, barW, barH);
+    ctx.fillStyle = ratio > 0.5 ? COLORS.neonGreen : ratio > 0.25 ? COLORS.yellow : COLORS.red;
+    ctx.fillRect(barX, barY, barW * ratio, barH);
+  }
+
   ctx.restore();
 }
 
