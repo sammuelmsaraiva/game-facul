@@ -19,7 +19,6 @@ import {
   GRAVITY,
   MAX_FALL_SPEED,
   VOID_Y,
-  GROUND_Y,
   TRAIL_LENGTH,
   COLORS,
 } from "./constants";
@@ -111,15 +110,7 @@ export function updatePlayer(
     }
   }
 
-  // Ground collision
-  if (player.y + player.height >= GROUND_Y) {
-    player.y = GROUND_Y - player.height;
-    player.vy = 0;
-    player.isGrounded = true;
-    player.isJumping = false;
-  }
-
-  // Void death
+  // Void death (cair em buracos entre plataformas)
   if (player.y > VOID_Y) {
     player.health = 0;
     player.alive = false;
