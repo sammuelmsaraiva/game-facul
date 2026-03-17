@@ -46,13 +46,13 @@ import { playEnemyShootSound, playEnemyDeathSound, playBossHitSound, playBossPha
 import { createExplosionParticles } from "./particles";
 import { shakeCamera } from "./camera";
 
-export function createDrone(x: number, y: number, patrolMinX: number, patrolMaxX: number): Enemy {
+export function createDrone(x: number, y: number, patrolMinX: number, patrolMaxX: number, speed: number = DRONE_SPEED): Enemy {
   return {
     x,
     y,
     width: DRONE_WIDTH,
     height: DRONE_HEIGHT,
-    vx: DRONE_SPEED,
+    vx: speed,
     vy: 0,
     type: "drone",
     health: DRONE_HEALTH,
@@ -187,7 +187,11 @@ function updateDrone(enemy: Enemy, state: GameState, projectiles: Projectile[]) 
   // Hover bob
   enemy.y += Math.sin(enemy.animTimer * 0.05) * 0.3;
 
-  // Shoot at player
+  // GDD: Zona 1 ("As Ruas") não tem projéteis inimigos
+  const inZone1 = enemy.x < state.level.sections.streets.endX;
+  if (inZone1) return;
+
+  // Shoot at player (apenas Zona 2+)
   enemy.shootTimer++;
   if (enemy.shootTimer >= enemy.shootCooldown) {
     enemy.shootTimer = 0;

@@ -15,6 +15,7 @@ import {
   HEALTH_RESTORE,
   AMMO_RESTORE,
   DATA_CHIP_SCORE,
+  DRONE_SPEED_Z2,
   COLORS,
 } from "./constants";
 import { createDrone, createTracker, createTurret, createBoss } from "./enemies";
@@ -80,11 +81,10 @@ export function generateLevel(): LevelData {
     });
   }
 
-  // Street enemies (slow drones)
+  // Street enemies: 2-3 drones básicos, sem tiro (GDD: aprendizado)
   enemies.push(createDrone(500, GROUND_Y - 180, 400, 700));
-  enemies.push(createDrone(1200, GROUND_Y - 160, 1100, 1400));
-  enemies.push(createDrone(2100, GROUND_Y - 200, 1900, 2300));
-  enemies.push(createDrone(2600, GROUND_Y - 170, 2500, 2800));
+  enemies.push(createDrone(1500, GROUND_Y - 160, 1400, 1800));
+  enemies.push(createDrone(2400, GROUND_Y - 170, 2300, 2700));
 
   // Street collectibles (generous)
   const streetCollectibles: [number, number, "health" | "ammo" | "data_chip"][] = [
@@ -188,20 +188,20 @@ export function generateLevel(): LevelData {
     }
   }
 
-  // Duct enemies (drones + trackers + turrets)
-  enemies.push(createDrone(ductsStart + 300, GROUND_Y - 220, ductsStart + 200, ductsStart + 500));
+  // Duct enemies: drones rápidos (3.5 u/s) + trackers + turrets (GDD: desafio)
+  enemies.push(createDrone(ductsStart + 300, GROUND_Y - 220, ductsStart + 200, ductsStart + 500, DRONE_SPEED_Z2));
   enemies.push(createTracker(ductsStart + 550, GROUND_Y - 160, ductsStart + 400, ductsStart + 700));
-  enemies.push(createDrone(ductsStart + 800, GROUND_Y - 200, ductsStart + 600, ductsStart + 1000));
+  enemies.push(createDrone(ductsStart + 800, GROUND_Y - 200, ductsStart + 600, ductsStart + 1000, DRONE_SPEED_Z2));
   enemies.push(createTurret(ductsStart + 600, GROUND_Y - PLATFORM_HEIGHT - 32));
   enemies.push(createTurret(ductsStart + 1100, GROUND_Y - 192));
   enemies.push(createTracker(ductsStart + 1200, GROUND_Y - 180, ductsStart + 1050, ductsStart + 1400));
-  enemies.push(createDrone(ductsStart + 1400, GROUND_Y - 200, ductsStart + 1300, ductsStart + 1600));
+  enemies.push(createDrone(ductsStart + 1400, GROUND_Y - 200, ductsStart + 1300, ductsStart + 1600, DRONE_SPEED_Z2));
   enemies.push(createTurret(ductsStart + 1700, GROUND_Y - PLATFORM_HEIGHT - 32));
   enemies.push(createTracker(ductsStart + 1900, GROUND_Y - 170, ductsStart + 1750, ductsStart + 2100));
-  enemies.push(createDrone(ductsStart + 2000, GROUND_Y - 210, ductsStart + 1900, ductsStart + 2200));
+  enemies.push(createDrone(ductsStart + 2000, GROUND_Y - 210, ductsStart + 1900, ductsStart + 2200, DRONE_SPEED_Z2));
   enemies.push(createTurret(ductsStart + 2350, GROUND_Y - 142));
   enemies.push(createTracker(ductsStart + 2550, GROUND_Y - 190, ductsStart + 2400, ductsStart + 2750));
-  enemies.push(createDrone(ductsStart + 2700, GROUND_Y - 200, ductsStart + 2500, ductsStart + 2900));
+  enemies.push(createDrone(ductsStart + 2700, GROUND_Y - 200, ductsStart + 2500, ductsStart + 2900, DRONE_SPEED_Z2));
   enemies.push(createTurret(ductsStart + 3100, GROUND_Y - PLATFORM_HEIGHT - 32));
 
   // Duct collectibles (fewer)
