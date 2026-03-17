@@ -63,6 +63,7 @@ export function resetGame(state: GameState): GameState {
     currentZone: "streets",
     zoneTransitionTimer: 0,
     zoneTransitionName: "",
+    damageFlashTimer: 0,
   };
 }
 
