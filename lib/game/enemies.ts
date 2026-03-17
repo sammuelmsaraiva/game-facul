@@ -20,6 +20,7 @@ import {
   TURRET_HEIGHT,
   TURRET_HEALTH,
   TURRET_SHOOT_COOLDOWN,
+  TURRET_BULLET_SPEED,
   BOSS_WIDTH,
   BOSS_HEIGHT,
   BOSS_HEALTH,
@@ -270,7 +271,7 @@ function updateTurret(enemy: Enemy, state: GameState, projectiles: Projectile[])
   // Face player
   enemy.direction = state.player.x < enemy.x ? "left" : "right";
 
-  // Shoot at player
+  // Shoot at player (GDD: intervalo 2.5s, velocidade 6.0 u/s)
   enemy.shootTimer++;
   if (enemy.shootTimer >= enemy.shootCooldown) {
     enemy.shootTimer = 0;
@@ -283,8 +284,8 @@ function updateTurret(enemy: Enemy, state: GameState, projectiles: Projectile[])
         y: enemy.y + enemy.height * 0.3,
         width: BULLET_WIDTH,
         height: BULLET_HEIGHT,
-        vx: (dirX / len) * ENEMY_BULLET_SPEED,
-        vy: (dirY / len) * ENEMY_BULLET_SPEED,
+        vx: (dirX / len) * TURRET_BULLET_SPEED,
+        vy: (dirY / len) * TURRET_BULLET_SPEED,
         owner: "enemy",
         damage: ENEMY_BULLET_DAMAGE,
         alive: true,

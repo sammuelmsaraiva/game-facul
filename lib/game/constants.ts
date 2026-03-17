@@ -48,7 +48,8 @@ export const TRACKER_LOST_TIME = 180; // 3s at 60fps — tempo para desistir da 
 export const TURRET_WIDTH = 32;
 export const TURRET_HEIGHT = 32;
 export const TURRET_HEALTH = 3;
-export const TURRET_SHOOT_COOLDOWN = 90;
+export const TURRET_SHOOT_COOLDOWN = 150; // GDD: intervalo 2.5s (150 frames a 60fps)
+export const TURRET_BULLET_SPEED = 6; // GDD: velocidade do projétil 6.0 u/s
 
 // Boss (GDD: 15 HP, 3 fases)
 export const BOSS_WIDTH = 120;
