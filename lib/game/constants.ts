@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Game Constants
+// Neon Escape - Game Constants
 // ============================
 
 // Canvas

@@ -10,8 +10,8 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Chrome Rebel - Cyberpunk Platformer',
-  description: 'Um jogo de plataforma 2D cyberpunk. Derrube a IA OmniCore e liberte a cidade.',
+  title: 'Neon Escape: Revolta da IA - Cyberpunk Platformer',
+  description: 'Em um futuro distópico onde uma IA tomou o controle da cidade, você é o último resistente humano. Destrua os drones e derrube a nave-comando.',
   icons: {
     icon: [
       {

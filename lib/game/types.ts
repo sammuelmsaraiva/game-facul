@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Game Types
+// Neon Escape - Game Types
 // ============================
 
 export type GameScreen =

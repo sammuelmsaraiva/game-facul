@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Input Manager
+// Neon Escape - Input Manager
 // ============================
 
 import type { InputState } from "./types";

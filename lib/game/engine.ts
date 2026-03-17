@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Game Engine
+// Neon Escape - Game Engine
 // ============================
 
 import type { GameState, InputState, GameScreen } from "./types";

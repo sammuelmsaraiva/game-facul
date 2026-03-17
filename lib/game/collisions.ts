@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Collision Detection (AABB)
+// Neon Escape - Collision Detection (AABB)
 // ============================
 
 import type { Rect } from "./types";

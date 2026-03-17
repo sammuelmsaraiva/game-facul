@@ -77,14 +77,14 @@ export default function MenuScreen({ onPlay, onControls, onCredits }: MenuScreen
       ctx.fillStyle = COLORS.cyan;
       ctx.font = "bold 52px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("CHROME REBEL", CANVAS_WIDTH / 2, titleY);
+      ctx.fillText("NEON ESCAPE", CANVAS_WIDTH / 2, titleY);
       ctx.restore();
 
       // Subtitle
       ctx.fillStyle = COLORS.magenta + "cc";
       ctx.font = "16px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("// DERRUBE A IA. LIBERTE A CIDADE.", CANVAS_WIDTH / 2, titleY + 35);
+      ctx.fillText("// REVOLTA DA IA", CANVAS_WIDTH / 2, titleY + 35);
 
       // Decorative line
       ctx.strokeStyle = COLORS.cyan + "60";

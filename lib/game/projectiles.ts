@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Projectile System
+// Neon Escape - Projectile System
 // ============================
 
 import type { Projectile, GameState } from "./types";

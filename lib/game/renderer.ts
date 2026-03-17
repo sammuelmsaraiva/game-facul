@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Renderer (Canvas 2D)
+// Neon Escape - Renderer (Canvas 2D)
 // ============================
 
 import type { GameState, Player, Enemy, Platform, Projectile, Collectible, BackgroundBuilding } from "./types";
