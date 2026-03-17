@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Camera System
+// Neon Escape - Camera System
 // ============================
 
 import type { Camera, Player, GameState } from "./types";

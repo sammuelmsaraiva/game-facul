@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Particle System
+// Neon Escape - Particle System
 // ============================
 
 import type { Particle } from "./types";

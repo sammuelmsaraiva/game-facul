@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Chrome Rebel - GDD (Game Design Document)",
-  description: "Documento de design do jogo Chrome Rebel - Plataforma 2D Cyberpunk",
+  title: "Neon Escape - GDD (Game Design Document)",
+  description: "Documento de design do jogo Neon Escape - Plataforma 2D Cyberpunk",
 };
 
 function Section({ title, id, children }: { title: string; id: string; children: React.ReactNode }) {
@@ -68,7 +68,7 @@ export default function GDDPage() {
           {"< VOLTAR AO JOGO"}
         </Link>
         <span className="text-xs" style={{ color: "rgba(200,200,216,0.5)" }}>
-          Chrome Rebel GDD v1.0
+          Neon Escape GDD v1.0
         </span>
       </header>
 
@@ -129,7 +129,7 @@ export default function GDDPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <InfoBox label="Titulo" value="Chrome Rebel" />
+            <InfoBox label="Titulo" value="Neon Escape" />
             <InfoBox label="Genero" value="Plataforma 2D / Acao" />
             <InfoBox label="Plataforma" value="Web (Navegador)" />
             <InfoBox label="Engine" value="HTML5 Canvas + Next.js" />
@@ -548,7 +548,7 @@ components/
         {/* Footer */}
         <footer className="text-center mt-16 pt-8 font-mono" style={{ borderTop: "1px solid rgba(0,255,255,0.1)" }}>
           <p className="text-sm" style={{ color: "rgba(200,200,216,0.4)" }}>
-            Chrome Rebel - Game Design Document | Projeto Academico 2026
+            Neon Escape - Game Design Document | Projeto Academico 2026
           </p>
           <p className="text-xs mt-2" style={{ color: "rgba(200,200,216,0.25)" }}>
             Este documento pode ser impresso como PDF pelo navegador (Ctrl+P)

@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Enemy Logic
+// Neon Escape - Enemy Logic
 // ============================
 
 import type { Enemy, Projectile, GameState } from "./types";

@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Synthesized Audio (Web Audio API)
+// Neon Escape - Synthesized Audio (Web Audio API)
 // ============================
 
 let audioCtx: AudioContext | null = null;

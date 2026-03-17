@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Player Logic
+// Neon Escape - Player Logic
 // ============================
 
 import type { Player, GameState, InputState, Projectile } from "./types";

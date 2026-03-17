@@ -59,7 +59,7 @@ export default function CreditsScreen({ onBack }: CreditsScreenProps) {
 
       // Credits content
       const credits = [
-        { role: "JOGO", name: "Chrome Rebel" },
+        { role: "JOGO", name: "Neon Escape: Revolta da IA" },
         { role: "GENERO", name: "Plataforma 2D - Cyberpunk" },
         { role: "ENGINE", name: "HTML5 Canvas + Next.js" },
         { role: "DESENVOLVIMENTO", name: "Projeto Academico" },

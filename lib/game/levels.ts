@@ -1,5 +1,5 @@
 // ============================
-// Chrome Rebel - Level Design
+// Neon Escape - Level Design
 // ============================
 
 import type { LevelData, Platform, Collectible, BackgroundBuilding } from "./types";
