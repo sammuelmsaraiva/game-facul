@@ -139,6 +139,7 @@ export default function CreditsScreen({ onBack }: CreditsScreenProps) {
       height={CANVAS_HEIGHT}
       className="block"
       style={{
+        imageRendering: "pixelated",
         width: "100%",
         maxWidth: `${CANVAS_WIDTH}px`,
         height: "auto",
