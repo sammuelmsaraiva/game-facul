@@ -2,9 +2,9 @@
 // Neon Escape - Game Constants
 // ============================
 
-// Canvas
-export const CANVAS_WIDTH = 960;
-export const CANVAS_HEIGHT = 540;
+// Canvas (GDD: 1280×720, 16:9)
+export const CANVAS_WIDTH = 1280;
+export const CANVAS_HEIGHT = 720;
 
 // Physics
 export const GRAVITY = 0.6;
