@@ -38,6 +38,7 @@ export function createGameState(): GameState {
     currentZone: "streets",
     zoneTransitionTimer: 0,
     zoneTransitionName: "",
+    damageFlashTimer: 0,
   };
 }
 
@@ -153,6 +154,11 @@ export function gameUpdate(state: GameState, input: InputState): GameState {
 
   if (state.zoneTransitionTimer > 0) {
     state.zoneTransitionTimer--;
+  }
+
+  // Damage flash timer
+  if (state.damageFlashTimer > 0) {
+    state.damageFlashTimer--;
   }
 
   // Check game over

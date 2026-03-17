@@ -67,6 +67,14 @@ export function render(ctx: CanvasRenderingContext2D, state: GameState) {
   // HUD (drawn last, no camera offset)
   renderHUD(ctx, state);
 
+  // Damage flash overlay (GDD: tela pisca vermelho ao receber dano)
+  if (state.damageFlashTimer > 0) {
+    ctx.save();
+    ctx.fillStyle = `rgba(255, 0, 40, ${state.damageFlashTimer / 15 * 0.25})`;
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    ctx.restore();
+  }
+
   // Zone transition overlay
   if (state.zoneTransitionTimer > 0) {
     renderZoneTransition(ctx, state.zoneTransitionName, state.zoneTransitionTimer);
@@ -660,17 +668,24 @@ function renderHUD(ctx: CanvasRenderingContext2D, state: GameState) {
     ctx.fill();
   }
 
-  // Ammo
+  // Ammo (GDD: pisca vermelho quando munição baixa)
   ctx.shadowBlur = 0;
-  ctx.fillStyle = COLORS.hudAmmo;
+  const ammoLow = player.ammo <= 3;
+  const ammoBlink = ammoLow && Math.floor(state.time * 0.15) % 2 === 0;
+  ctx.fillStyle = ammoBlink ? COLORS.red : COLORS.hudAmmo;
+  if (ammoBlink) {
+    ctx.shadowColor = COLORS.red;
+    ctx.shadowBlur = 8;
+  }
   ctx.font = "bold 14px monospace";
   ctx.textAlign = "left";
   ctx.fillText(`AMMO: ${player.ammo}`, 16, 54);
+  ctx.shadowBlur = 0;
 
   // Small ammo bar
   ctx.fillStyle = "#222";
   ctx.fillRect(16, 58, 100, 4);
-  ctx.fillStyle = COLORS.hudAmmo;
+  ctx.fillStyle = ammoLow ? COLORS.red : COLORS.hudAmmo;
   const ammoRatio = Math.min(1, player.ammo / 40);
   ctx.fillRect(16, 58, 100 * ammoRatio, 4);
 

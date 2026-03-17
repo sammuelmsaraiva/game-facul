@@ -244,6 +244,7 @@ export function damagePlayer(player: Player, damage: number, state: GameState) {
 
   playHitSound();
   shakeCamera(state.camera, 4, 10);
+  state.damageFlashTimer = 15; // GDD: tela pisca vermelho ao receber dano
   state.particles.push(
     ...createExplosionParticles(
       player.x + player.width / 2,
