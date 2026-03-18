@@ -128,10 +128,11 @@ export function updatePlayer(
   const maxX = state.level.totalWidth - player.width;
   if (player.x > maxX) player.x = maxX;
 
-  // Boss arena lock
+  // Boss arena lock — uma vez na zona boss com boss vivo, não pode voltar
   const bossSection = state.level.sections.boss;
-  if (player.x >= bossSection.startX && player.x < bossSection.startX + 10) {
-    // Once entered, can't go back
+  const bossAlive = state.enemies.some(e => e.type === "boss" && e.alive);
+  if (bossAlive && state.currentZone === "boss" && player.x < bossSection.startX) {
+    player.x = bossSection.startX;
   }
 
   // Invincibility timer
