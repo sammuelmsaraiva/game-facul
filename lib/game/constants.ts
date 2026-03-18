@@ -13,9 +13,9 @@ export const MAX_FALL_SPEED = 12;
 // Player
 export const PLAYER_WIDTH = 32;
 export const PLAYER_HEIGHT = 48;
-export const PLAYER_SPEED = 2.8;       // velocidade máxima horizontal
-export const PLAYER_ACCEL = 0.35;      // aceleração por frame ao pressionar
-export const PLAYER_DECEL = 0.3;       // desaceleração por frame ao soltar
+export const PLAYER_SPEED = 4.5;       // velocidade máxima horizontal (original)
+export const PLAYER_ACCEL = 0.8;       // aceleração por frame ao pressionar (snappy)
+export const PLAYER_DECEL = 0.6;       // desaceleração por frame ao soltar
 export const PLAYER_JUMP_FORCE = -12;
 export const PLAYER_MAX_HEALTH = 5;
 export const PLAYER_START_AMMO = 20;
