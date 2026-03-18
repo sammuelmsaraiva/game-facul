@@ -8,6 +8,7 @@ import { loadSettings, saveSettings } from "./settings";
 let audioCtx: AudioContext | null = null;
 let sfxGainNode: GainNode | null = null;
 let musicGainNode: GainNode | null = null;
+let hihatBuffer: AudioBuffer | null = null; // cache do buffer de ruído para hi-hat
 
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
@@ -219,17 +220,19 @@ function playMusicStep() {
       kickOsc.stop(now + 0.15);
     }
 
-    // Hi-hat nos offbeats
+    // Hi-hat nos offbeats — buffer reutilizado para evitar alocação contínua
     if (musicStep % 2 === 1) {
       const noiseLen = 0.05;
-      const bufferSize = ctx.sampleRate * noiseLen;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * 0.3;
+      if (!hihatBuffer) {
+        const bufferSize = Math.floor(ctx.sampleRate * noiseLen);
+        hihatBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = hihatBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * 0.3;
+        }
       }
       const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
+      noise.buffer = hihatBuffer;
       const hihatGain = ctx.createGain();
       const hihatFilter = ctx.createBiquadFilter();
       hihatFilter.type = "highpass";
@@ -282,6 +285,8 @@ export function stopMusic() {
     clearInterval(musicInterval);
     musicInterval = null;
   }
+  // Resetar cache do hi-hat — será recriado se AudioContext mudar
+  hihatBuffer = null;
 }
 
 export function isMusicPlaying(): boolean {
