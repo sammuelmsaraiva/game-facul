@@ -6,7 +6,6 @@ import { playMenuSelectSound } from "@/lib/game/audio";
 
 interface MenuScreenProps {
   onPlay: () => void;
-  onControls: () => void;
   onSettings: () => void;
   onCredits: () => void;
   onExit: () => void;

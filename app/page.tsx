@@ -8,7 +8,6 @@ import GameCanvas from "@/components/game-canvas";
 import MenuScreen from "@/components/menu-screen";
 import GameOverScreen from "@/components/game-over-screen";
 import VictoryScreen from "@/components/victory-screen";
-import ControlsScreen from "@/components/controls-screen";
 import SettingsScreen from "@/components/settings-screen";
 import CreditsScreen from "@/components/credits-screen";
 import Link from "next/link";
@@ -44,10 +43,6 @@ export default function Home() {
     setScreen("menu");
   }, []);
 
-  const handleControls = useCallback(() => {
-    setScreen("controls");
-  }, []);
-
   const handleSettings = useCallback(() => {
     setScreen("settings");
   }, []);
@@ -75,7 +70,6 @@ export default function Home() {
         {screen === "menu" && (
           <MenuScreen
             onPlay={handlePlay}
-            onControls={handleControls}
             onSettings={handleSettings}
             onCredits={handleCredits}
             onExit={handleExit}
@@ -100,10 +94,6 @@ export default function Home() {
 
         {screen === "victory" && (
           <VictoryScreen score={score} onMenu={handleMenu} />
-        )}
-
-        {screen === "controls" && (
-          <ControlsScreen onBack={handleBack} />
         )}
 
         {screen === "settings" && (
