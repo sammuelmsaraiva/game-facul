@@ -8,6 +8,7 @@ import {
   CANVAS_HEIGHT,
   GROUND_Y,
   COLORS,
+  PLAYER_START_AMMO,
 } from "./constants";
 import { getCameraShakeOffset } from "./camera";
 import { renderParticles } from "./particles";
@@ -684,7 +685,7 @@ function renderHUD(ctx: CanvasRenderingContext2D, state: GameState) {
   ctx.fillStyle = "#222";
   ctx.fillRect(16, 58, 100, 4);
   ctx.fillStyle = ammoLow ? COLORS.red : COLORS.hudAmmo;
-  const ammoRatio = Math.min(1, player.ammo / 40);
+  const ammoRatio = Math.min(1, player.ammo / PLAYER_START_AMMO);
   ctx.fillRect(16, 58, 100 * ammoRatio, 4);
 
   // Score
