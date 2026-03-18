@@ -138,6 +138,11 @@ npm run start
 
 O Game Design Document completo esta disponivel em `/gdd` na aplicacao.
 
+## Desenvolvimento Assistido por IA
+
+Este projeto utilizou o Claude (Anthropic) como ferramenta auxiliar para automatizacao de tarefas repetitivas (padronizacao de commits, push) e suporte na implementacao de funcoes especificas do game engine.
+Configuracoes de design, decisoes de gameplay e direcao do projeto foram realizados inteiramente pela equipe.
+
 ## Licenca
 
 Projeto academico — uso educacional.
