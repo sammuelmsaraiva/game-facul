@@ -51,9 +51,12 @@ export function isLandingOnTop(
   const platformTop = platformRect.y;
   const previousBottom = playerBottom - playerVY;
 
+  // Tolerância proporcional à velocidade vertical para plataformas móveis rápidas
+  const tolerance = Math.max(4, Math.abs(playerVY) + 1);
+
   // Was above the platform last frame and now overlapping
   return (
-    previousBottom <= platformTop + 4 &&
+    previousBottom <= platformTop + tolerance &&
     playerBottom >= platformTop &&
     playerRect.x + playerRect.width > platformRect.x &&
     playerRect.x < platformRect.x + platformRect.width
