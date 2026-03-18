@@ -1,8 +1,10 @@
 // ============================
-// Neon Escape - Input Manager
+// Neon Escape - Input Manager (keybindings configuráveis)
 // ============================
 
 import type { InputState } from "./types";
+import { loadSettings } from "./settings";
+import type { GameAction } from "./settings";
 
 export function createInputState(): InputState {
   return {
@@ -19,25 +21,35 @@ export function createInputState(): InputState {
   };
 }
 
-const keyMap: Record<string, keyof InputState> = {
-  ArrowLeft: "left",
-  ArrowRight: "right",
-  ArrowUp: "jump",
-  ArrowDown: "down",
-  KeyA: "left",
-  KeyD: "right",
-  KeyW: "jump",
-  KeyS: "down",
-  Space: "jump",
-  KeyJ: "shoot",
-  Escape: "pause",
-};
+// Constrói mapa reverso: keyCode → action, a partir dos bindings atuais
+function buildKeyMap(): Record<string, GameAction> {
+  const settings = loadSettings();
+  const map: Record<string, GameAction> = {};
+
+  for (const [action, keys] of Object.entries(settings.keyBindings) as [GameAction, [string, string | null]][]) {
+    if (keys[0]) map[keys[0]] = action;
+    if (keys[1]) map[keys[1]] = action;
+  }
+
+  return map;
+}
+
+// Mapa atualizado no setupInput e quando settings mudam
+let currentKeyMap: Record<string, GameAction> = buildKeyMap();
+
+// Chamado pela tela de configurações quando keybindings mudam
+export function refreshKeyMap(): void {
+  currentKeyMap = buildKeyMap();
+}
 
 const pressedKeys = new Set<string>();
 
 export function setupInput(input: InputState): () => void {
+  // Atualizar mapa ao iniciar (pega keybindings atuais)
+  currentKeyMap = buildKeyMap();
+
   const onKeyDown = (e: KeyboardEvent) => {
-    // P = despausar (tecla separada de ESC)
+    // P = despausar (tecla fixa, não remapeável)
     if (e.code === "KeyP") {
       e.preventDefault();
       if (!pressedKeys.has(e.code)) {
@@ -47,7 +59,7 @@ export function setupInput(input: InputState): () => void {
       return;
     }
 
-    const action = keyMap[e.code];
+    const action = currentKeyMap[e.code];
     if (action) {
       e.preventDefault();
       if (!pressedKeys.has(e.code)) {
@@ -66,7 +78,7 @@ export function setupInput(input: InputState): () => void {
       pressedKeys.delete(e.code);
       return;
     }
-    const action = keyMap[e.code];
+    const action = currentKeyMap[e.code];
     if (action) {
       e.preventDefault();
       pressedKeys.delete(e.code);

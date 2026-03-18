@@ -1,18 +1,79 @@
 // ============================
 // Neon Escape - Synthesized Audio (Web Audio API)
+// Volume separado: Música vs SFX
 // ============================
 
+import { loadSettings, saveSettings } from "./settings";
+
 let audioCtx: AudioContext | null = null;
+let sfxGainNode: GainNode | null = null;
+let musicGainNode: GainNode | null = null;
 
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
     audioCtx = new AudioContext();
+
+    // Criar gain nodes persistentes
+    sfxGainNode = audioCtx.createGain();
+    sfxGainNode.connect(audioCtx.destination);
+
+    musicGainNode = audioCtx.createGain();
+    musicGainNode.connect(audioCtx.destination);
+
+    // Carregar volumes salvos
+    const settings = loadSettings();
+    sfxGainNode.gain.value = settings.sfxVolume / 100;
+    musicGainNode.gain.value = settings.musicVolume / 100;
   }
   if (audioCtx.state === "suspended") {
     audioCtx.resume();
   }
   return audioCtx;
 }
+
+function getSfxOutput(): GainNode {
+  getAudioContext();
+  return sfxGainNode!;
+}
+
+function getMusicOutput(): GainNode {
+  getAudioContext();
+  return musicGainNode!;
+}
+
+// ---------- Volume Controls ----------
+
+export function setMusicVolume(value: number): void {
+  const clamped = Math.max(0, Math.min(100, value));
+  const settings = loadSettings();
+  settings.musicVolume = clamped;
+  saveSettings(settings);
+
+  if (musicGainNode) {
+    musicGainNode.gain.value = clamped / 100;
+  }
+}
+
+export function setSfxVolume(value: number): void {
+  const clamped = Math.max(0, Math.min(100, value));
+  const settings = loadSettings();
+  settings.sfxVolume = clamped;
+  saveSettings(settings);
+
+  if (sfxGainNode) {
+    sfxGainNode.gain.value = clamped / 100;
+  }
+}
+
+export function getMusicVolume(): number {
+  return loadSettings().musicVolume;
+}
+
+export function getSfxVolumeValue(): number {
+  return loadSettings().sfxVolume;
+}
+
+// ---------- SFX Tone Helper ----------
 
 function playTone(
   frequency: number,
@@ -36,7 +97,7 @@ function playTone(
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
 
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(getSfxOutput());
 
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + duration);
@@ -44,6 +105,8 @@ function playTone(
     // Audio not supported or blocked
   }
 }
+
+// ---------- SFX Functions ----------
 
 export function playShootSound() {
   playTone(800, 0.1, "square", 0.06, 400);
@@ -119,6 +182,7 @@ let musicStep = 0;
 function playMusicStep() {
   try {
     const ctx = getAudioContext();
+    const musicOut = getMusicOutput();
     const now = ctx.currentTime;
     const stepDuration = 0.4;
 
@@ -136,7 +200,7 @@ function playMusicStep() {
     bassGain.gain.exponentialRampToValueAtTime(0.001, now + stepDuration);
     bassOsc.connect(bassFilter);
     bassFilter.connect(bassGain);
-    bassGain.connect(ctx.destination);
+    bassGain.connect(musicOut);
     bassOsc.start(now);
     bassOsc.stop(now + stepDuration);
 
@@ -150,7 +214,7 @@ function playMusicStep() {
       kickGain.gain.setValueAtTime(0.06, now);
       kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
       kickOsc.connect(kickGain);
-      kickGain.connect(ctx.destination);
+      kickGain.connect(musicOut);
       kickOsc.start(now);
       kickOsc.stop(now + 0.15);
     }
@@ -174,7 +238,7 @@ function playMusicStep() {
       hihatGain.gain.exponentialRampToValueAtTime(0.001, now + noiseLen);
       noise.connect(hihatFilter);
       hihatFilter.connect(hihatGain);
-      hihatGain.connect(ctx.destination);
+      hihatGain.connect(musicOut);
       noise.start(now);
     }
 
@@ -193,7 +257,7 @@ function playMusicStep() {
     melodyGain.gain.exponentialRampToValueAtTime(0.001, now + stepDuration * 0.8);
     melodyOsc.connect(melodyFilter);
     melodyFilter.connect(melodyGain);
-    melodyGain.connect(ctx.destination);
+    melodyGain.connect(musicOut);
     melodyOsc.start(now);
     melodyOsc.stop(now + stepDuration * 0.8);
 
