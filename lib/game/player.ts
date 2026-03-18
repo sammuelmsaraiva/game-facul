@@ -7,6 +7,8 @@ import {
   PLAYER_WIDTH,
   PLAYER_HEIGHT,
   PLAYER_SPEED,
+  PLAYER_ACCEL,
+  PLAYER_DECEL,
   PLAYER_JUMP_FORCE,
   PLAYER_MAX_HEALTH,
   PLAYER_START_AMMO,
@@ -60,15 +62,21 @@ export function updatePlayer(
   const player = state.player;
   if (!player.alive) return { newProjectile: null };
 
-  // Horizontal movement
-  player.vx = 0;
-  if (input.left) {
-    player.vx = -PLAYER_SPEED;
-    player.direction = "left";
-  }
-  if (input.right) {
-    player.vx = PLAYER_SPEED;
-    player.direction = "right";
+  // Horizontal movement com aceleração/desaceleração suave
+  const targetVx = input.right ? PLAYER_SPEED : input.left ? -PLAYER_SPEED : 0;
+
+  if (targetVx !== 0) {
+    // Acelerando em direção ao alvo
+    const diff = targetVx - player.vx;
+    player.vx += Math.sign(diff) * Math.min(PLAYER_ACCEL, Math.abs(diff));
+    player.direction = targetVx > 0 ? "right" : "left";
+  } else {
+    // Desacelerando até parar
+    if (Math.abs(player.vx) <= PLAYER_DECEL) {
+      player.vx = 0;
+    } else {
+      player.vx -= Math.sign(player.vx) * PLAYER_DECEL;
+    }
   }
 
   // Jump
