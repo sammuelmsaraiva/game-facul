@@ -11,6 +11,7 @@ import {
 } from "./constants";
 import { getCameraShakeOffset } from "./camera";
 import { renderParticles } from "./particles";
+import { loadSettings, getKeyDisplayName, ACTION_LABELS, type GameAction } from "./settings";
 
 // ---------- Main Render ----------
 export function render(ctx: CanvasRenderingContext2D, state: GameState) {
@@ -766,13 +767,28 @@ function renderReadyOverlay(ctx: CanvasRenderingContext2D, time: number) {
   ctx.lineTo(CANVAS_WIDTH / 2 + 200, 215);
   ctx.stroke();
 
-  // Controles
+  // Controles (lidos das configurações do jogador)
+  const settings = loadSettings();
+  const bindings = settings.keyBindings;
+  // Agrupa left+right como "Mover" para exibição compacta
+  const leftKeys = [bindings.left[0], bindings.left[1]].filter(Boolean).map(k => getKeyDisplayName(k!));
+  const rightKeys = [bindings.right[0], bindings.right[1]].filter(Boolean).map(k => getKeyDisplayName(k!));
+  const moveKey = leftKeys[0] + " / " + rightKeys[0]
+    + (leftKeys[1] && rightKeys[1] ? "  ou  " + leftKeys[1] + " / " + rightKeys[1] : "");
+
+  function formatKeys(action: GameAction): string {
+    const keys = bindings[action];
+    const parts = [keys[0], keys[1]].filter(Boolean).map(k => getKeyDisplayName(k!));
+    if (action === "shoot") parts.push("CLIQUE");
+    return parts.join(" / ");
+  }
+
   const controls = [
-    { key: "A / D  ou  ← →", desc: "Mover" },
-    { key: "W / ↑ / ESPACO", desc: "Pular" },
-    { key: "S / ↓", desc: "Descer de plataformas" },
-    { key: "J / CLIQUE", desc: "Atirar" },
-    { key: "ESC", desc: "Pausar" },
+    { key: moveKey, desc: "Mover" },
+    { key: formatKeys("jump"), desc: ACTION_LABELS.jump },
+    { key: formatKeys("down"), desc: ACTION_LABELS.down },
+    { key: formatKeys("shoot"), desc: ACTION_LABELS.shoot },
+    { key: formatKeys("pause"), desc: ACTION_LABELS.pause },
   ];
 
   const startY = 245;
