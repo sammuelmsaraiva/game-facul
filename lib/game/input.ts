@@ -49,8 +49,8 @@ export function setupInput(input: InputState): () => void {
   currentKeyMap = buildKeyMap();
 
   const onKeyDown = (e: KeyboardEvent) => {
-    // P = despausar (tecla fixa, não remapeável)
-    if (e.code === "KeyP") {
+    // P = despausar apenas se não estiver remapeado para outra ação
+    if (e.code === "KeyP" && !currentKeyMap["KeyP"]) {
       e.preventDefault();
       if (!pressedKeys.has(e.code)) {
         pressedKeys.add(e.code);
@@ -73,7 +73,7 @@ export function setupInput(input: InputState): () => void {
   };
 
   const onKeyUp = (e: KeyboardEvent) => {
-    if (e.code === "KeyP") {
+    if (e.code === "KeyP" && !currentKeyMap["KeyP"]) {
       e.preventDefault();
       pressedKeys.delete(e.code);
       return;
