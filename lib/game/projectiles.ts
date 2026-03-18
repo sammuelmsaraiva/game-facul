@@ -3,7 +3,7 @@
 // ============================
 
 import type { Projectile, GameState } from "./types";
-import { CANVAS_WIDTH, TRAIL_LENGTH } from "./constants";
+import { CANVAS_WIDTH, CANVAS_HEIGHT, TRAIL_LENGTH } from "./constants";
 import { aabb } from "./collisions";
 import { damageEnemy } from "./enemies";
 import { damagePlayer } from "./player";
@@ -29,7 +29,7 @@ export function updateProjectiles(state: GameState) {
       proj.x < camX - 200 ||
       proj.x > camX + CANVAS_WIDTH + 200 ||
       proj.y < -200 ||
-      proj.y > 800
+      proj.y > CANVAS_HEIGHT + 200
     ) {
       proj.alive = false;
       continue;
