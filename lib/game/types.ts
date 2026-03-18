@@ -10,7 +10,8 @@ export type GameScreen =
   | "gameover"
   | "victory"
   | "credits"
-  | "controls";
+  | "controls"
+  | "settings";
 
 export type Direction = "left" | "right";
 

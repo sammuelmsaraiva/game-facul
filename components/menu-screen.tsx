@@ -7,18 +7,19 @@ import { playMenuSelectSound } from "@/lib/game/audio";
 interface MenuScreenProps {
   onPlay: () => void;
   onControls: () => void;
+  onSettings: () => void;
   onCredits: () => void;
   onExit: () => void;
 }
 
-export default function MenuScreen({ onPlay, onControls, onCredits, onExit }: MenuScreenProps) {
+export default function MenuScreen({ onPlay, onSettings, onCredits, onExit }: MenuScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeRef = useRef(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const menuItems = [
     { label: "JOGAR", action: onPlay },
-    { label: "CONTROLES", action: onControls },
+    { label: "CONFIGURACOES", action: onSettings },
     { label: "CREDITOS", action: onCredits },
     { label: "SAIR", action: onExit },
   ];
