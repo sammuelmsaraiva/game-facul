@@ -13,30 +13,6 @@ export function aabb(a: Rect, b: Rect): boolean {
   );
 }
 
-export function rectOverlap(
-  a: Rect,
-  b: Rect
-): { overlapX: number; overlapY: number; fromLeft: boolean; fromTop: boolean } | null {
-  const overlapLeft = a.x + a.width - b.x;
-  const overlapRight = b.x + b.width - a.x;
-  const overlapTop = a.y + a.height - b.y;
-  const overlapBottom = b.y + b.height - a.y;
-
-  if (overlapLeft <= 0 || overlapRight <= 0 || overlapTop <= 0 || overlapBottom <= 0) {
-    return null;
-  }
-
-  const overlapX = overlapLeft < overlapRight ? overlapLeft : -overlapRight;
-  const overlapY = overlapTop < overlapBottom ? overlapTop : -overlapBottom;
-
-  return {
-    overlapX,
-    overlapY,
-    fromLeft: overlapLeft < overlapRight,
-    fromTop: overlapTop < overlapBottom,
-  };
-}
-
 /**
  * Check if player is standing on top of a platform
  */
@@ -63,11 +39,3 @@ export function isLandingOnTop(
   );
 }
 
-export function pointInRect(px: number, py: number, rect: Rect): boolean {
-  return (
-    px >= rect.x &&
-    px <= rect.x + rect.width &&
-    py >= rect.y &&
-    py <= rect.y + rect.height
-  );
-}
