@@ -407,7 +407,7 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
     : phase === 2 ? BOSS_SPAWN_COOLDOWN_P2
     : BOSS_SPAWN_COOLDOWN_P1;
 
-  if (enemy.bossAttackTimer! % spawnCooldown === 0) {
+  if (enemy.bossAttackTimer! > 0 && enemy.bossAttackTimer! % spawnCooldown === 0) {
     const bossX = state.level.sections.boss.startX;
     const aliveMinions = state.enemies.filter(
       (e) => (e.type === "drone" || e.type === "tracker") && e.alive
