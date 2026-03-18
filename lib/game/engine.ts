@@ -158,8 +158,12 @@ export function gameUpdate(state: GameState, input: InputState): GameState {
   // Update camera
   updateCamera(state.camera, state.player, state);
 
-  // Update particles
+  // Update particles com limite máximo para manter performance
   state.particles = updateParticles(state.particles);
+  const MAX_PARTICLES = 300;
+  if (state.particles.length > MAX_PARTICLES) {
+    state.particles = state.particles.slice(-MAX_PARTICLES);
+  }
 
   // Detecção de mudança de zona
   const px = state.player.x;
