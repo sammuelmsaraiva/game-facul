@@ -65,6 +65,7 @@ export function createDrone(x: number, y: number, patrolMinX: number, patrolMaxX
     patrolMinX,
     patrolMaxX,
     animTimer: 0,
+    homeY: y, // posição vertical de referência para o hover
   };
 }
 
@@ -185,8 +186,8 @@ function updateDrone(enemy: Enemy, state: GameState, projectiles: Projectile[]) 
     enemy.direction = "left";
   }
 
-  // Hover bob
-  enemy.y += Math.sin(enemy.animTimer * 0.05) * 0.3;
+  // Hover bob — posição absoluta para evitar drift vertical acumulado
+  enemy.y = (enemy.homeY ?? enemy.y) + Math.sin(enemy.animTimer * 0.05) * 6;
 
   // GDD: Zona 1 ("As Ruas") não tem projéteis inimigos
   const inZone1 = enemy.x < state.level.sections.streets.endX;
