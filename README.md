@@ -129,7 +129,7 @@ npm run start
 | Joao Vinicius |
 | Lucas Benevinuto |
 | Vinicius Henrique |
-| Sammuel Moura |
+| Sammuel Saraiva |
 
 **Disciplina:** Programacao para Jogos Digitais
 **Professor:** Glauber Rodrigues
