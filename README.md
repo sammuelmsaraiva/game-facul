@@ -131,8 +131,8 @@ npm run start
 | Vinicius Henrique |
 | Sammuel Saraiva |
 
-**Disciplina:** Programacao para Jogos Digitais
-**Professor:** Glauber Rodrigues
+**Disciplina:** Introdução ao Desenvolvimento de Jogos
+**Professor:** SAMUEL VINICIUS PEREIRA DE OLIVEIRA
 
 ## GDD
 
