@@ -9,6 +9,7 @@ import {
   CAMERA_LERP,
   CAMERA_OFFSET_X,
 } from "./constants";
+import { loadSettings } from "./settings";
 
 export function createCamera(): Camera {
   return {
@@ -53,6 +54,8 @@ export function updateCamera(camera: Camera, player: Player, state: GameState) {
 }
 
 export function shakeCamera(camera: Camera, intensity: number, duration: number) {
+  // Respeita preferência do usuário (acessibilidade — motion sickness)
+  if (!loadSettings().screenShakeEnabled) return;
   camera.shakeIntensity = intensity;
   camera.shakeTimer = duration;
 }

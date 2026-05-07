@@ -81,17 +81,23 @@ function playTone(
   duration: number,
   type: OscillatorType = "square",
   volume: number = 0.1,
-  frequencyEnd?: number
+  frequencyEnd?: number,
+  varyPitch: boolean = true
 ) {
   try {
     const ctx = getAudioContext();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
+    // Variação aleatória de pitch ±6% — evita fadiga sonora ao repetir o mesmo SFX
+    const pitchMul = varyPitch ? 1 + (Math.random() - 0.5) * 0.12 : 1;
+    const f0 = frequency * pitchMul;
+    const f1 = frequencyEnd ? frequencyEnd * pitchMul : undefined;
+
     osc.type = type;
-    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-    if (frequencyEnd) {
-      osc.frequency.linearRampToValueAtTime(frequencyEnd, ctx.currentTime + duration);
+    osc.frequency.setValueAtTime(f0, ctx.currentTime);
+    if (f1) {
+      osc.frequency.linearRampToValueAtTime(f1, ctx.currentTime + duration);
     }
 
     gain.gain.setValueAtTime(volume, ctx.currentTime);
