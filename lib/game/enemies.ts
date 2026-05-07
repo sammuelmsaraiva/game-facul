@@ -4,6 +4,7 @@
 
 import type { Enemy, Projectile, GameState } from "./types";
 import {
+  BOSS_ARENA_WIDTH,
   DRONE_WIDTH,
   DRONE_HEIGHT,
   DRONE_SPEED,
@@ -44,7 +45,7 @@ import {
   CANVAS_HEIGHT,
 } from "./constants";
 import { playEnemyShootSound, playEnemyDeathSound, playBossHitSound, playBossPhaseSound } from "./audio";
-import { createExplosionParticles } from "./particles";
+import { createExplosionParticles, createDamageNumber } from "./particles";
 import { shakeCamera } from "./camera";
 
 export function createDrone(x: number, y: number, patrolMinX: number, patrolMaxX: number, speed: number = DRONE_SPEED): Enemy {
@@ -94,7 +95,7 @@ export function createTracker(x: number, y: number, patrolMinX: number, patrolMa
   };
 }
 
-export function createTurret(x: number, y: number): Enemy {
+export function createTurret(x: number, y: number, direction: "left" | "right" = "left"): Enemy {
   return {
     x,
     y,
@@ -106,7 +107,7 @@ export function createTurret(x: number, y: number): Enemy {
     health: TURRET_HEALTH,
     maxHealth: TURRET_HEALTH,
     alive: true,
-    direction: "left",
+    direction,
     shootCooldown: TURRET_SHOOT_COOLDOWN,
     shootTimer: Math.random() * TURRET_SHOOT_COOLDOWN,
     patrolMinX: x,
@@ -147,9 +148,11 @@ export function updateEnemies(state: GameState): Projectile[] {
 
     enemy.animTimer++;
 
-    // Check if player is near enough to activate
+    // Ativa inimigos dentro do range visível + margem de segurança
+    // Camera mostra até ~832px à frente (CANVAS_WIDTH=1280, CAMERA_OFFSET_X=448px)
+    // Usar 1400px garante que todos os inimigos visíveis já estão animando
     const distToPlayer = Math.abs(enemy.x - player.x);
-    const activationRange = enemy.type === "boss" ? 9999 : enemy.type === "tracker" ? 800 : 600;
+    const activationRange = enemy.type === "boss" ? 9999 : enemy.type === "tracker" ? 1400 : 1400;
 
     if (distToPlayer > activationRange) continue;
 
@@ -193,29 +196,27 @@ function updateDrone(enemy: Enemy, state: GameState, projectiles: Projectile[]) 
   const inZone1 = enemy.x < state.level.sections.streets.endX;
   if (inZone1) return;
 
-  // Shoot at player (apenas Zona 2+)
+  // Tiro horizontal puro na direção em que o drone está virado (sem mirar no player).
+  // O drone só dispara quando está olhando "para a frente" do player —
+  // ou seja, quando o player está no mesmo eixo horizontal aproximado (±60px de altura).
   enemy.shootTimer++;
   if (enemy.shootTimer >= enemy.shootCooldown) {
     enemy.shootTimer = 0;
-    const dirX = state.player.x - enemy.x;
-    const dirY = state.player.y - enemy.y;
-    const len = Math.sqrt(dirX * dirX + dirY * dirY);
-    if (len > 0) {
-      projectiles.push({
-        x: enemy.x + enemy.width / 2,
-        y: enemy.y + enemy.height / 2,
-        width: BULLET_WIDTH,
-        height: BULLET_HEIGHT,
-        vx: (dirX / len) * ENEMY_BULLET_SPEED,
-        vy: (dirY / len) * ENEMY_BULLET_SPEED,
-        owner: "enemy",
-        damage: ENEMY_BULLET_DAMAGE,
-        alive: true,
-        trail: [],
-        color: COLORS.bulletEnemy,
-      });
-      playEnemyShootSound();
-    }
+    const dirSign = enemy.direction === "right" ? 1 : -1;
+    projectiles.push({
+      x: enemy.direction === "right" ? enemy.x + enemy.width : enemy.x,
+      y: enemy.y + enemy.height / 2,
+      width: BULLET_WIDTH,
+      height: BULLET_HEIGHT,
+      vx: ENEMY_BULLET_SPEED * dirSign,
+      vy: 0,
+      owner: "enemy",
+      damage: ENEMY_BULLET_DAMAGE,
+      alive: true,
+      trail: [],
+      color: COLORS.bulletEnemy,
+    });
+    playEnemyShootSound();
   }
 }
 
@@ -268,33 +269,27 @@ function updateTracker(enemy: Enemy, state: GameState) {
   enemy.y += enemy.vy;
 }
 
-function updateTurret(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
-  // Face player
-  enemy.direction = state.player.x < enemy.x ? "left" : "right";
-
-  // Shoot at player (GDD: intervalo 2.5s, velocidade 6.0 u/s)
+function updateTurret(enemy: Enemy, _state: GameState, projectiles: Projectile[]) {
+  // Direção é FIXA no momento do spawn (createTurret) — turret não acompanha o player.
+  // Tiro sai sempre em linha reta horizontal pura na altura do canhão.
   enemy.shootTimer++;
   if (enemy.shootTimer >= enemy.shootCooldown) {
     enemy.shootTimer = 0;
-    const dirX = state.player.x - enemy.x;
-    const dirY = state.player.y - enemy.y;
-    const len = Math.sqrt(dirX * dirX + dirY * dirY);
-    if (len > 0) {
-      projectiles.push({
-        x: enemy.direction === "right" ? enemy.x + enemy.width : enemy.x,
-        y: enemy.y + enemy.height * 0.3,
-        width: BULLET_WIDTH,
-        height: BULLET_HEIGHT,
-        vx: (dirX / len) * TURRET_BULLET_SPEED,
-        vy: (dirY / len) * TURRET_BULLET_SPEED,
-        owner: "enemy",
-        damage: ENEMY_BULLET_DAMAGE,
-        alive: true,
-        trail: [],
-        color: COLORS.bulletEnemy,
-      });
-      playEnemyShootSound();
-    }
+    const dirSign = enemy.direction === "right" ? 1 : -1;
+    projectiles.push({
+      x: enemy.direction === "right" ? enemy.x + enemy.width : enemy.x,
+      y: enemy.y + enemy.height * 0.3,
+      width: BULLET_WIDTH,
+      height: BULLET_HEIGHT,
+      vx: TURRET_BULLET_SPEED * dirSign,
+      vy: 0,
+      owner: "enemy",
+      damage: ENEMY_BULLET_DAMAGE,
+      alive: true,
+      trail: [],
+      color: COLORS.bulletEnemy,
+    });
+    playEnemyShootSound();
   }
 }
 
@@ -336,12 +331,33 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
 
   const phase = enemy.bossPhase!;
 
-  // Movimento hover — mais errático a cada fase
+  // Movimento em LEMNISCATA (∞ deitado) - Bernoulli's lemniscate
+  // x(t) = a·cos(t) / (1 + sin²(t))
+  // y(t) = a·sin(t)·cos(t) / (1 + sin²(t))
+  // O boss percorre a curva continuamente; velocidade aumenta a cada fase.
+  // bossPathT é acumulado por angularSpeed — não reseta entre fases, então o boss
+  // continua de onde estava na curva quando a velocidade aumenta.
   enemy.bossAttackTimer = (enemy.bossAttackTimer || 0) + 1;
-  const moveSpeed = phase === 3 ? 2.5 : phase === 2 ? 2.0 : 1.5;
-  enemy.x += Math.sin(enemy.bossAttackTimer * 0.02) * moveSpeed;
-  enemy.y =
-    CANVAS_HEIGHT * 0.25 + Math.sin(enemy.bossAttackTimer * 0.015) * (30 + phase * 10);
+
+  const angularSpeed = phase === 3 ? 0.022 : phase === 2 ? 0.018 : 0.014;
+  enemy.bossPathT = (enemy.bossPathT || 0) + angularSpeed;
+  const t = enemy.bossPathT;
+
+  // Raio da lemniscata (largura ~ 2a, altura ~ a√3/4 ≈ 0.65a)
+  const a = 380; // ocupa ~760px na horizontal
+  const sinT = Math.sin(t);
+  const cosT = Math.cos(t);
+  const denom = 1 + sinT * sinT;
+
+  const dx = (a * cosT) / denom;
+  const dy = (a * sinT * cosT) / denom;
+
+  // Centro da lemniscata: meio da arena do boss, um pouco acima do centro vertical
+  const arenaCenterX = state.level.sections.boss.startX + BOSS_ARENA_WIDTH / 2;
+  const arenaCenterY = CANVAS_HEIGHT * 0.40;
+
+  enemy.x = arenaCenterX + dx - enemy.width / 2;
+  enemy.y = arenaCenterY + dy - enemy.height / 2;
 
   // Tiro — padrão diferente por fase
   enemy.shootTimer++;
@@ -355,12 +371,12 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
 
     const cx = enemy.x + enemy.width / 2;
     const cy = enemy.y + enemy.height / 2;
-    const dirX = state.player.x + state.player.width / 2 - cx;
-    const dirY = state.player.y + state.player.height / 2 - cy;
-    const baseAngle = Math.atan2(dirY, dirX);
+    // Boss não mira no player — atira sempre PARA BAIXO com padrões fixos.
+    // Como ele se move em lemniscata, a cobertura horizontal vem do movimento.
+    const baseAngle = Math.PI / 2; // 90° = direção para baixo
 
     if (phase === 1) {
-      // Fase 1: 1 projétil direcionado
+      // Fase 1: 1 projétil reto pra baixo
       projectiles.push({
         x: cx, y: cy,
         width: BULLET_WIDTH + 2, height: BULLET_HEIGHT + 2,
@@ -370,9 +386,9 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
         alive: true, trail: [], color: COLORS.magenta,
       });
     } else if (phase === 2) {
-      // Fase 2: 2 projéteis simultâneos com leve spread
-      for (let i = 0; i < 2; i++) {
-        const offset = (i - 0.5) * BOSS_BULLET_SPREAD;
+      // Fase 2: 2 projéteis em "V" invertido fixo (~±17° em torno do eixo vertical)
+      const offsets = [-0.30, 0.30];
+      for (const offset of offsets) {
         const angle = baseAngle + offset;
         projectiles.push({
           x: cx, y: cy,
@@ -384,9 +400,9 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
         });
       }
     } else {
-      // Fase 3: rajada de 4 projéteis em leque (GDD)
-      for (let i = 0; i < 4; i++) {
-        const offset = (i - 1.5) * BOSS_BULLET_SPREAD;
+      // Fase 3: leque fixo de 4 projéteis cobrindo ~70° abaixo do boss
+      const offsets = [-0.6, -0.2, 0.2, 0.6];
+      for (const offset of offsets) {
         const angle = baseAngle + offset;
         projectiles.push({
           x: cx, y: cy,
@@ -436,15 +452,8 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
         );
       }
     } else if (phase === 3 && aliveMinions < 4) {
-      // Fase 3: ondas mistas (1 drone + 2 trackers)
-      state.enemies.push(
-        createDrone(
-          bossX + 100 + Math.random() * 600,
-          80 + Math.random() * 80,
-          bossX + 50, bossX + 850
-        )
-      );
-      for (let i = 0; i < 2; i++) {
+      // Fase 3: apenas rastreadores (3 unidades)
+      for (let i = 0; i < 3; i++) {
         state.enemies.push(
           createTracker(
             bossX + 80 + Math.random() * 650,
@@ -459,6 +468,17 @@ function updateBoss(enemy: Enemy, state: GameState, projectiles: Projectile[]) {
 
 export function damageEnemy(enemy: Enemy, damage: number, state: GameState) {
   enemy.health -= damage;
+  enemy.hitFlashTimer = 5; // 5 frames de flash branco no inimigo
+
+  // Damage number flutuante (Risk of Rain 2 / Dead Cells style)
+  state.damageNumbers.push(
+    createDamageNumber(
+      enemy.x + enemy.width / 2,
+      enemy.y - 4,
+      damage,
+      enemy.type === "boss"
+    )
+  );
 
   if (enemy.type === "boss") {
     playBossHitSound();
@@ -475,8 +495,11 @@ export function damageEnemy(enemy: Enemy, damage: number, state: GameState) {
 
   if (enemy.health <= 0) {
     enemy.alive = false;
+    state.killCount++;
     playEnemyDeathSound();
-    shakeCamera(state.camera, enemy.type === "boss" ? 12 : 3, enemy.type === "boss" ? 30 : 8);
+    shakeCamera(state.camera, enemy.type === "boss" ? 14 : 4, enemy.type === "boss" ? 30 : 10);
+    // Hit-stop: freeze frame curto ao matar inimigos para dar peso ao impacto
+    state.hitStopTimer = Math.max(state.hitStopTimer, enemy.type === "boss" ? 12 : 3);
 
     const color =
       enemy.type === "boss"
