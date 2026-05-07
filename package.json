@@ -1,12 +1,54 @@
 {
-  "name": "my-project",
-  "version": "0.1.0",
+  "name": "neon-escape",
+  "version": "1.0.0",
+  "description": "Neon Escape: Revolta da IA — plataforma 2D cyberpunk",
+  "main": "electron/main.js",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build:static": "BUILD_TARGET=electron next build",
+    "electron": "electron .",
+    "electron:dev": "ELECTRON_DEV=1 electron .",
+    "package": "npm run build:static && electron-builder",
+    "package:win": "npm run build:static && electron-builder --win --x64",
+    "package:linux": "npm run build:static && electron-builder --linux --x64",
+    "package:mac": "npm run build:static && electron-builder --mac"
+  },
+  "build": {
+    "appId": "com.fadex.neonescape",
+    "productName": "Neon Escape",
+    "asar": true,
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "out/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Game"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.action-games"
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -64,6 +106,8 @@
     "@types/node": "^22",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
     "postcss": "^8.5",
     "tailwindcss": "^4.2.0",
     "tw-animate-css": "1.3.3",

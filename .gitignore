@@ -2,3 +2,7 @@ node_modules/
 .next/
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Build outputs (Electron / static export)
+out/
+dist-electron/
