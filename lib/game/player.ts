@@ -13,7 +13,15 @@ import {
   PLAYER_MAX_HEALTH,
   PLAYER_START_AMMO,
   PLAYER_SHOOT_COOLDOWN,
+  PLAYER_SHOOT_COOLDOWN_RAPID,
+  SHOTGUN_PELLETS,
+  SHOTGUN_SPREAD,
   PLAYER_INVINCIBLE_TIME,
+  PLAYER_COYOTE_TIME,
+  PLAYER_JUMP_BUFFER,
+  PLAYER_JUMP_CUT_MULT,
+  LANDING_FALL_THRESHOLD,
+  HIT_STOP_FRAMES_BIG,
   PLAYER_BULLET_SPEED,
   PLAYER_BULLET_DAMAGE,
   BULLET_WIDTH,
@@ -26,9 +34,18 @@ import {
   COLORS,
 } from "./constants";
 import { aabb, isLandingOnTop } from "./collisions";
+import { getPlayerSpeedMultiplier } from "./settings";
 import { playJumpSound, playShootSound, playHitSound } from "./audio";
-import { createExplosionParticles } from "./particles";
+import {
+  createExplosionParticles,
+  createLandingDustParticles,
+  createJumpDustParticles,
+} from "./particles";
 import { shakeCamera } from "./camera";
+
+function spawnLandingDust(state: GameState, x: number, y: number, fallSpeed: number) {
+  state.particles.push(...createLandingDustParticles(x, y, fallSpeed));
+}
 
 export function createPlayer(x: number, y: number): Player {
   return {
@@ -52,40 +69,85 @@ export function createPlayer(x: number, y: number): Player {
     animFrame: 0,
     animTimer: 0,
     alive: true,
+    canShoot: false,
+    weaponMode: "none",
+    coyoteTimer: 0,
+    jumpBufferTimer: 0,
+    jumpHeld: false,
+    prevVy: 0,
+    jumpAnimTimer: 0,
+    landAnimTimer: 0,
+    muzzleFlashTimer: 0,
+    noDamageTimer: 0,
   };
 }
 
 export function updatePlayer(
   state: GameState,
   input: InputState
-): { newProjectile: Projectile | null } {
+): { newProjectiles: Projectile[] } {
   const player = state.player;
-  if (!player.alive) return { newProjectile: null };
+  if (!player.alive) return { newProjectiles: [] };
 
   // Horizontal movement com aceleração/desaceleração suave
-  const targetVx = input.right ? PLAYER_SPEED : input.left ? -PLAYER_SPEED : 0;
+  // Velocidade modulada pelo multiplicador das configurações (50-200%)
+  const speedMult = getPlayerSpeedMultiplier();
+  const maxSpeed = PLAYER_SPEED * speedMult;
+  const accel = PLAYER_ACCEL * speedMult;
+  const decel = PLAYER_DECEL * speedMult;
+  const targetVx = input.right ? maxSpeed : input.left ? -maxSpeed : 0;
 
   if (targetVx !== 0) {
     // Acelerando em direção ao alvo
     const diff = targetVx - player.vx;
-    player.vx += Math.sign(diff) * Math.min(PLAYER_ACCEL, Math.abs(diff));
+    player.vx += Math.sign(diff) * Math.min(accel, Math.abs(diff));
     player.direction = targetVx > 0 ? "right" : "left";
   } else {
     // Desacelerando até parar
-    if (Math.abs(player.vx) <= PLAYER_DECEL) {
+    if (Math.abs(player.vx) <= decel) {
       player.vx = 0;
     } else {
-      player.vx -= Math.sign(player.vx) * PLAYER_DECEL;
+      player.vx -= Math.sign(player.vx) * decel;
     }
   }
 
-  // Jump
-  if (input.jumpPressed && player.isGrounded) {
+  // Jump buffer: armazena pressão de pulo para usar quando tocar o chão
+  if (input.jumpPressed) {
+    player.jumpBufferTimer = PLAYER_JUMP_BUFFER;
+  } else if (player.jumpBufferTimer > 0) {
+    player.jumpBufferTimer--;
+  }
+
+  // Coyote time + buffer de pulo: pode pular se estava no chão até PLAYER_COYOTE_TIME frames atrás
+  const canJump = player.coyoteTimer > 0 || player.isGrounded;
+  if (player.jumpBufferTimer > 0 && canJump) {
     player.vy = PLAYER_JUMP_FORCE;
     player.isGrounded = false;
     player.isJumping = true;
+    player.coyoteTimer = 0;
+    player.jumpBufferTimer = 0;
+    player.jumpHeld = true;
+    player.jumpAnimTimer = 8; // squash inicial (sprite estica)
     playJumpSound();
+    state.particles.push(
+      ...createJumpDustParticles(player.x + player.width / 2, player.y + player.height)
+    );
   }
+
+  // Decai os timers de animação
+  if (player.jumpAnimTimer > 0) player.jumpAnimTimer--;
+  if (player.landAnimTimer > 0) player.landAnimTimer--;
+  if (player.muzzleFlashTimer > 0) player.muzzleFlashTimer--;
+
+  // Variable jump height: soltar a tecla de pulo cedo encurta o salto
+  if (player.jumpHeld && !input.jump && player.vy < 0) {
+    player.vy *= PLAYER_JUMP_CUT_MULT;
+    player.jumpHeld = false;
+  }
+  if (player.vy >= 0) player.jumpHeld = false;
+
+  // Salva vy antes da gravidade para detectar pouso forte abaixo
+  player.prevVy = player.vy;
 
   // Gravity
   player.vy += GRAVITY;
@@ -96,6 +158,7 @@ export function updatePlayer(
   player.y += player.vy;
 
   // Platform collisions
+  const wasGrounded = player.isGrounded;
   player.isGrounded = false;
   for (const platform of state.platforms) {
     // Drop-through: S/↓ permite cair por plataformas flutuantes (não-chão)
@@ -116,18 +179,34 @@ export function updatePlayer(
     };
 
     if (isLandingOnTop(playerRect, platRect, player.vy)) {
+      const fallSpeed = player.prevVy;
       player.y = platform.y - player.height;
       player.vy = 0;
       player.isGrounded = true;
       player.isJumping = false;
+
+      // Dust ao pousar de uma altura considerável + squash anim
+      if (!wasGrounded) {
+        player.landAnimTimer = 6; // achatar sprite por 6 frames
+        if (fallSpeed >= LANDING_FALL_THRESHOLD) {
+          spawnLandingDust(state, player.x + player.width / 2, platform.y, fallSpeed);
+        }
+      }
     }
+  }
+
+  // Coyote time: ao sair do chão sem ter pulado, ainda pode pular por alguns frames
+  if (wasGrounded && !player.isGrounded && !player.isJumping) {
+    player.coyoteTimer = PLAYER_COYOTE_TIME;
+  } else if (player.coyoteTimer > 0) {
+    player.coyoteTimer--;
   }
 
   // Void death (cair em buracos entre plataformas)
   if (player.y > VOID_Y) {
     player.health = 0;
     player.alive = false;
-    return { newProjectile: null };
+    return { newProjectiles: [] };
   }
 
   // Left boundary
@@ -151,34 +230,75 @@ export function updatePlayer(
     }
   }
 
-  // Shooting
-  let newProjectile: Projectile | null = null;
+  // Shooting (bloqueado até o jogador desbloquear a arma na fase 2)
+  const newProjectiles: Projectile[] = [];
   if (player.shootCooldown > 0) player.shootCooldown--;
 
-  if (input.shootPressed && player.shootCooldown <= 0 && player.ammo > 0) {
+  const canFireNow =
+    player.canShoot &&
+    input.shootPressed &&
+    player.shootCooldown <= 0 &&
+    player.ammo > 0;
+
+  if (canFireNow) {
     player.ammo--;
-    player.shootCooldown = PLAYER_SHOOT_COOLDOWN;
+    player.shootCooldown =
+      player.weaponMode === "rapid"
+        ? PLAYER_SHOOT_COOLDOWN_RAPID
+        : PLAYER_SHOOT_COOLDOWN;
     player.isShooting = true;
+    player.muzzleFlashTimer = 4; // muzzle flash por 4 frames
+
+    // Tiro crítico (1/10): dano dobrado, cor e tamanho diferentes
+    const isCrit = Math.random() < 0.1;
+    const damage = isCrit ? PLAYER_BULLET_DAMAGE * 2 : PLAYER_BULLET_DAMAGE;
+    const bulletColor = isCrit ? COLORS.yellow : COLORS.bulletPlayer;
+    const bulletW = isCrit ? BULLET_WIDTH + 4 : BULLET_WIDTH;
+    const bulletH = isCrit ? BULLET_HEIGHT + 2 : BULLET_HEIGHT;
 
     const bulletX =
       player.direction === "right"
         ? player.x + player.width
-        : player.x - BULLET_WIDTH;
+        : player.x - bulletW;
     const bulletY = player.y + player.height * 0.35;
+    const dirSign = player.direction === "right" ? 1 : -1;
 
-    newProjectile = {
-      x: bulletX,
-      y: bulletY,
-      width: BULLET_WIDTH,
-      height: BULLET_HEIGHT,
-      vx: player.direction === "right" ? PLAYER_BULLET_SPEED : -PLAYER_BULLET_SPEED,
-      vy: 0,
-      owner: "player",
-      damage: PLAYER_BULLET_DAMAGE,
-      alive: true,
-      trail: [],
-      color: COLORS.bulletPlayer,
-    };
+    if (player.weaponMode === "shotgun") {
+      // Leque de SHOTGUN_PELLETS projéteis
+      const half = (SHOTGUN_PELLETS - 1) / 2;
+      for (let i = 0; i < SHOTGUN_PELLETS; i++) {
+        const angle = (i - half) * SHOTGUN_SPREAD;
+        const vx = Math.cos(angle) * PLAYER_BULLET_SPEED * dirSign;
+        const vy = Math.sin(angle) * PLAYER_BULLET_SPEED;
+        newProjectiles.push({
+          x: bulletX,
+          y: bulletY,
+          width: bulletW,
+          height: bulletH,
+          vx,
+          vy,
+          owner: "player",
+          damage,
+          alive: true,
+          trail: [],
+          color: bulletColor,
+        });
+      }
+    } else {
+      newProjectiles.push({
+        x: bulletX,
+        y: bulletY,
+        width: bulletW,
+        height: bulletH,
+        vx: PLAYER_BULLET_SPEED * dirSign,
+        vy: 0,
+        owner: "player",
+        damage,
+        alive: true,
+        trail: [],
+        color: bulletColor,
+      });
+    }
 
     playShootSound();
   } else {
@@ -237,25 +357,38 @@ export function updatePlayer(
     }
   }
 
-  return { newProjectile };
+  return { newProjectiles };
 }
 
 export function damagePlayer(player: Player, damage: number, state: GameState) {
   if (player.invincible || !player.alive) return;
+  // Cheat de desenvolvedor: God Mode bloqueia todo o dano (mantém i-frames visuais)
+  if (state.cheatInvincible) {
+    player.invincible = true;
+    player.invincibleTimer = 30;
+    return;
+  }
 
   player.health -= damage;
   player.invincible = true;
   player.invincibleTimer = PLAYER_INVINCIBLE_TIME;
+  player.noDamageTimer = 0; // reseta contador de regen
 
   playHitSound();
-  shakeCamera(state.camera, 4, 10);
+  shakeCamera(state.camera, 6, 14);
   state.damageFlashTimer = 15; // GDD: tela pisca vermelho ao receber dano
+  state.hitStopTimer = HIT_STOP_FRAMES_BIG; // freeze frame para "peso" no impacto
+
+  // Knockback leve oposto ao centro do player → empurra para longe
+  player.vx -= Math.sign(player.vx || 1) * 2;
+  if (player.isGrounded) player.vy = -4;
+
   state.particles.push(
     ...createExplosionParticles(
       player.x + player.width / 2,
       player.y + player.height / 2,
       COLORS.red,
-      8
+      12
     )
   );
 
