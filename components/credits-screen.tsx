@@ -42,35 +42,38 @@ export default function CreditsScreen({ onBack }: CreditsScreenProps) {
       // Title
       ctx.save();
       ctx.shadowColor = COLORS.magenta;
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 25;
       ctx.fillStyle = COLORS.magenta;
-      ctx.font = "bold 32px monospace";
+      ctx.font = "bold 56px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("CREDITOS", CANVAS_WIDTH / 2, 70);
+      ctx.fillText("CREDITOS", CANVAS_WIDTH / 2, 100);
       ctx.restore();
 
       // Divider
-      ctx.strokeStyle = COLORS.magenta + "40";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = COLORS.magenta + "60";
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(CANVAS_WIDTH / 2 - 200, 90);
-      ctx.lineTo(CANVAS_WIDTH / 2 + 200, 90);
+      ctx.moveTo(CANVAS_WIDTH / 2 - 320, 130);
+      ctx.lineTo(CANVAS_WIDTH / 2 + 320, 130);
       ctx.stroke();
 
       // Titulo do jogo
-      ctx.fillStyle = COLORS.white + "dd";
-      ctx.font = "bold 16px monospace";
+      ctx.fillStyle = COLORS.white + "ee";
+      ctx.font = "bold 26px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("Neon Escape: Revolta da IA", CANVAS_WIDTH / 2, 120);
+      ctx.fillText("Neon Escape: Revolta da IA", CANVAS_WIDTH / 2, 175);
 
-      ctx.fillStyle = COLORS.cyan + "60";
-      ctx.font = "11px monospace";
-      ctx.fillText("Plataforma 2D Cyberpunk | Next.js + Canvas", CANVAS_WIDTH / 2, 140);
+      ctx.fillStyle = COLORS.cyan + "80";
+      ctx.font = "16px monospace";
+      ctx.fillText("Plataforma 2D Cyberpunk  |  Next.js + Canvas", CANVAS_WIDTH / 2, 205);
 
       // Equipe
       ctx.fillStyle = COLORS.magenta;
-      ctx.font = "bold 13px monospace";
-      ctx.fillText("EQUIPE DE DESENVOLVIMENTO", CANVAS_WIDTH / 2, 175);
+      ctx.shadowColor = COLORS.magenta;
+      ctx.shadowBlur = 12;
+      ctx.font = "bold 20px monospace";
+      ctx.fillText("EQUIPE DE DESENVOLVIMENTO", CANVAS_WIDTH / 2, 260);
+      ctx.shadowBlur = 0;
 
       const team = [
         { name: "Sammuel Moura Saraiva", role: "Arquitetura, Motor Canvas, Deploy" },
@@ -79,39 +82,45 @@ export default function CreditsScreen({ onBack }: CreditsScreenProps) {
         { name: "Vinicius Henrique Albino Andrade", role: "Assets, Pixel Art, Audio, Level Design" },
       ];
 
-      const teamStartY = 200;
+      const teamStartY = 305;
       team.forEach((member, i) => {
-        const y = teamStartY + i * 42;
+        const y = teamStartY + i * 64;
         ctx.fillStyle = COLORS.cyan;
-        ctx.font = "bold 13px monospace";
+        ctx.shadowColor = COLORS.cyan;
+        ctx.shadowBlur = 8;
+        ctx.font = "bold 20px monospace";
         ctx.textAlign = "center";
         ctx.fillText(member.name, CANVAS_WIDTH / 2, y);
-        ctx.fillStyle = COLORS.white + "80";
-        ctx.font = "11px monospace";
-        ctx.fillText(member.role, CANVAS_WIDTH / 2, y + 16);
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = COLORS.white + "a0";
+        ctx.font = "16px monospace";
+        ctx.fillText(member.role, CANVAS_WIDTH / 2, y + 24);
       });
 
       // Disciplina
-      ctx.fillStyle = COLORS.cyan + "60";
-      ctx.font = "11px monospace";
-      const infoY = teamStartY + team.length * 42 + 15;
-      ctx.fillText("Intro. ao Desenvolvimento de Jogos - iCEV 2026.1", CANVAS_WIDTH / 2, infoY);
-      ctx.fillText("Prof. Samuel Vinicius Pereira de Oliveira", CANVAS_WIDTH / 2, infoY + 18);
+      ctx.fillStyle = COLORS.cyan + "90";
+      ctx.font = "16px monospace";
+      const infoY = teamStartY + team.length * 64 + 12;
+      ctx.fillText("Intro. ao Desenvolvimento de Jogos  -  iCEV 2026.1", CANVAS_WIDTH / 2, infoY);
+      ctx.fillText("Prof. Samuel Vinicius Pereira de Oliveira", CANVAS_WIDTH / 2, infoY + 26);
 
       // Thank you
-      const tyY = infoY + 50;
+      const tyY = infoY + 70;
       const pulse = 0.7 + Math.sin(t * 0.04) * 0.3;
       ctx.fillStyle = COLORS.neonGreen;
+      ctx.shadowColor = COLORS.neonGreen;
+      ctx.shadowBlur = 12;
       ctx.globalAlpha = pulse;
-      ctx.font = "14px monospace";
+      ctx.font = "bold 22px monospace";
       ctx.textAlign = "center";
       ctx.fillText("Obrigado por jogar!", CANVAS_WIDTH / 2, tyY);
       ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
 
       // Back
-      ctx.fillStyle = COLORS.white + "40";
-      ctx.font = "12px monospace";
-      ctx.fillText("Pressione ESC ou ENTER para voltar", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
+      ctx.fillStyle = COLORS.white + "70";
+      ctx.font = "bold 16px monospace";
+      ctx.fillText("[ ESC ] ou [ ENTER ] para voltar", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 32);
 
       animId = requestAnimationFrame(draw);
     };
@@ -137,7 +146,7 @@ export default function CreditsScreen({ onBack }: CreditsScreenProps) {
       ref={canvasRef}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
-      className="block"
+      className="block cursor-pointer"
       style={{
         imageRendering: "pixelated",
         width: "100%",
@@ -146,6 +155,10 @@ export default function CreditsScreen({ onBack }: CreditsScreenProps) {
         aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
       }}
       tabIndex={0}
+      onClick={() => {
+        playMenuSelectSound();
+        onBack();
+      }}
     />
   );
 }
