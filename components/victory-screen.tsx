@@ -6,10 +6,11 @@ import { playMenuSelectSound } from "@/lib/game/audio";
 
 interface VictoryScreenProps {
   score: number;
+  rank: number | null; // posição no high-score (1-5)
   onMenu: () => void;
 }
 
-export default function VictoryScreen({ score, onMenu }: VictoryScreenProps) {
+export default function VictoryScreen({ score, rank: hsRank, onMenu }: VictoryScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeRef = useRef(0);
 
@@ -87,11 +88,23 @@ export default function VictoryScreen({ score, onMenu }: VictoryScreenProps) {
       else if (score >= 500) rank = "C";
 
       ctx.fillStyle = rank === "S" ? COLORS.yellow : rank === "A" ? COLORS.neonGreen : COLORS.white;
-      ctx.shadowColor = ctx.fillStyle;
+      ctx.shadowColor = ctx.fillStyle as string;
       ctx.shadowBlur = 10;
       ctx.font = "bold 36px monospace";
       ctx.fillText(`RANK: ${rank}`, CANVAS_WIDTH / 2, 340);
       ctx.shadowBlur = 0;
+
+      // Posição no high-score (se entrou)
+      if (hsRank !== null) {
+        const blink = Math.sin(t * 0.1) > 0;
+        ctx.fillStyle = hsRank === 1 ? COLORS.yellow : COLORS.cyan;
+        ctx.shadowColor = ctx.fillStyle as string;
+        ctx.shadowBlur = blink ? 16 : 8;
+        ctx.font = "bold 18px monospace";
+        const text = hsRank === 1 ? "★ NOVO RECORDE ★" : `RANKING: #${hsRank} de 5`;
+        ctx.fillText(text, CANVAS_WIDTH / 2, 372);
+        ctx.shadowBlur = 0;
+      }
 
       // Back to menu
       const btnY = 400;
@@ -133,7 +146,7 @@ export default function VictoryScreen({ score, onMenu }: VictoryScreenProps) {
       ref={canvasRef}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
-      className="block"
+      className="block cursor-pointer"
       style={{
         imageRendering: "pixelated",
         width: "100%",
@@ -142,6 +155,10 @@ export default function VictoryScreen({ score, onMenu }: VictoryScreenProps) {
         aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
       }}
       tabIndex={0}
+      onClick={() => {
+        playMenuSelectSound();
+        onMenu();
+      }}
     />
   );
 }

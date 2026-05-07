@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS } from "@/lib/game/constants";
 import { playMenuSelectSound } from "@/lib/game/audio";
+import { loadHighScores, formatTime } from "@/lib/game/highscores";
 
 interface MenuScreenProps {
   onPlay: () => void;
@@ -130,11 +131,51 @@ export default function MenuScreen({ onPlay, onSettings, onCredits, onExit }: Me
         ctx.fillText(menuItems[i].label, CANVAS_WIDTH / 2, itemY + 6);
       }
 
+      // === Painel de Top Scores (canto superior direito) ===
+      const scores = loadHighScores();
+      if (scores.length > 0) {
+        const panelX = CANVAS_WIDTH - 280;
+        const panelY = 60;
+        const panelW = 260;
+        const panelH = 220;
+        ctx.fillStyle = "rgba(10, 10, 26, 0.7)";
+        ctx.fillRect(panelX, panelY, panelW, panelH);
+        ctx.strokeStyle = COLORS.yellow + "60";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(panelX, panelY, panelW, panelH);
+
+        ctx.fillStyle = COLORS.yellow;
+        ctx.shadowColor = COLORS.yellow;
+        ctx.shadowBlur = 8;
+        ctx.font = "bold 14px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("MELHORES PONTUACOES", panelX + panelW / 2, panelY + 22);
+        ctx.shadowBlur = 0;
+
+        ctx.font = "11px monospace";
+        for (let i = 0; i < scores.length; i++) {
+          const s = scores[i];
+          const lineY = panelY + 50 + i * 32;
+          const isFirst = i === 0;
+          ctx.fillStyle = isFirst ? COLORS.yellow : COLORS.white + "cc";
+          ctx.textAlign = "left";
+          ctx.fillText(`#${i + 1}`, panelX + 12, lineY);
+          ctx.textAlign = "right";
+          ctx.fillText(`${s.score}`, panelX + panelW - 12, lineY);
+          ctx.fillStyle = COLORS.white + "70";
+          ctx.font = "10px monospace";
+          ctx.textAlign = "left";
+          const phaseLabel = s.phaseReached === 4 ? "vitoria" : `fase ${s.phaseReached}`;
+          ctx.fillText(`${phaseLabel} · ${formatTime(s.timeSeconds)}`, panelX + 12, lineY + 13);
+          ctx.font = "11px monospace";
+        }
+      }
+
       // Footer
       ctx.fillStyle = COLORS.white + "30";
       ctx.font = "11px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("Use W/S ou Setas para navegar | ENTER para selecionar", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
+      ctx.fillText("W/S ou setas para navegar | ENTER ou clique para selecionar", CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
 
       animId = requestAnimationFrame(drawMenu);
     };
@@ -171,12 +212,53 @@ export default function MenuScreen({ onPlay, onSettings, onCredits, onExit }: Me
     return () => window.removeEventListener("keydown", handleKey);
   }, [selectedIndex, menuItems]);
 
+  // Mouse → coordenadas internas do canvas (independente do CSS scale)
+  const canvasMousePos = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * CANVAS_WIDTH;
+    const y = ((e.clientY - rect.top) / rect.height) * CANVAS_HEIGHT;
+    return { x, y };
+  };
+
+  // Detecta se a coordenada está sobre um item do menu (mesmas posições do render)
+  const itemAt = (y: number): number | null => {
+    const startY = 340;
+    const itemSpacing = 55;
+    const itemH = 36;
+    for (let i = 0; i < menuItems.length; i++) {
+      const itemY = startY + i * itemSpacing;
+      if (y >= itemY - itemH / 2 && y <= itemY + itemH / 2) return i;
+    }
+    return null;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const pos = canvasMousePos(e);
+    if (!pos) return;
+    const idx = itemAt(pos.y);
+    if (idx !== null && idx !== selectedIndex) {
+      setSelectedIndex(idx);
+      playMenuSelectSound();
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const pos = canvasMousePos(e);
+    if (!pos) return;
+    const idx = itemAt(pos.y);
+    if (idx !== null) {
+      menuItems[idx].action();
+    }
+  };
+
   return (
     <canvas
       ref={canvasRef}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
-      className="block"
+      className="block cursor-pointer"
       style={{
         imageRendering: "pixelated",
         width: "100%",
@@ -185,6 +267,8 @@ export default function MenuScreen({ onPlay, onSettings, onCredits, onExit }: Me
         aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
       }}
       tabIndex={0}
+      onMouseMove={handleMouseMove}
+      onClick={handleClick}
     />
   );
 }

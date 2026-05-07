@@ -6,11 +6,12 @@ import { playMenuSelectSound } from "@/lib/game/audio";
 
 interface GameOverScreenProps {
   score: number;
+  rank: number | null;
   onRetry: () => void;
   onMenu: () => void;
 }
 
-export default function GameOverScreen({ score, onRetry, onMenu }: GameOverScreenProps) {
+export default function GameOverScreen({ score, rank, onRetry, onMenu }: GameOverScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeRef = useRef(0);
 
@@ -73,6 +74,18 @@ export default function GameOverScreen({ score, onRetry, onMenu }: GameOverScree
       ctx.fillText(`PONTUACAO: ${score}`, CANVAS_WIDTH / 2, 280);
       ctx.shadowBlur = 0;
 
+      // Rank (se entrou no top 5)
+      if (rank !== null) {
+        const blink = Math.sin(t * 0.1) > 0;
+        ctx.fillStyle = rank === 1 ? COLORS.yellow : COLORS.neonGreen;
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = blink ? 14 : 6;
+        ctx.font = "bold 18px monospace";
+        const label = rank === 1 ? "NOVO RECORDE!" : `RANK ATUAL: #${rank}`;
+        ctx.fillText(label, CANVAS_WIDTH / 2, 308);
+        ctx.shadowBlur = 0;
+      }
+
       // Buttons
       const btnY1 = 340;
       const btnY2 = 395;
@@ -125,12 +138,37 @@ export default function GameOverScreen({ score, onRetry, onMenu }: GameOverScree
     return () => window.removeEventListener("keydown", handleKey);
   }, [onRetry, onMenu]);
 
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * CANVAS_WIDTH;
+    const y = ((e.clientY - rect.top) / rect.height) * CANVAS_HEIGHT;
+
+    const btnW = 260;
+    const btnH = 40;
+    const btnX = CANVAS_WIDTH / 2 - btnW / 2;
+
+    // Retry button
+    if (x >= btnX && x <= btnX + btnW && y >= 340 && y <= 340 + btnH) {
+      playMenuSelectSound();
+      onRetry();
+      return;
+    }
+    // Menu button
+    if (x >= btnX && x <= btnX + btnW && y >= 395 && y <= 395 + btnH) {
+      playMenuSelectSound();
+      onMenu();
+      return;
+    }
+  };
+
   return (
     <canvas
       ref={canvasRef}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
-      className="block"
+      className="block cursor-pointer"
       style={{
         imageRendering: "pixelated",
         width: "100%",
@@ -139,6 +177,7 @@ export default function GameOverScreen({ score, onRetry, onMenu }: GameOverScree
         aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
       }}
       tabIndex={0}
+      onClick={handleClick}
     />
   );
 }
