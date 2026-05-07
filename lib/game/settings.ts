@@ -12,6 +12,10 @@ export interface GameSettings {
   keyBindings: KeyBindings;
   musicVolume: number; // 0-100
   sfxVolume: number;   // 0-100
+  playerSpeedMultiplier: number; // 50-200 (porcentagem) — afeta velocidade horizontal do personagem
+  crtEffect: boolean; // overlay CRT (scanlines + vignette)
+  screenShakeEnabled: boolean; // permite desligar shake (motion sickness)
+  showFps: boolean; // mostra contador de FPS no canto superior esquerdo
 }
 
 const STORAGE_KEY = "neon-escape-settings";
@@ -55,7 +59,18 @@ export function getDefaultSettings(): GameSettings {
     },
     musicVolume: 70,
     sfxVolume: 80,
+    playerSpeedMultiplier: 100,
+    crtEffect: true,
+    screenShakeEnabled: true,
+    showFps: false,
   };
+}
+
+// Helper: retorna a velocidade do jogador aplicando o multiplicador das configurações
+export function getPlayerSpeedMultiplier(): number {
+  const s = loadSettings();
+  // clamp por segurança caso settings antigos venham fora do range
+  return Math.max(0.5, Math.min(2.0, s.playerSpeedMultiplier / 100));
 }
 
 let cachedSettings: GameSettings | null = null;
@@ -74,6 +89,10 @@ export function loadSettings(): GameSettings {
         keyBindings: { ...defaults.keyBindings, ...(parsed.keyBindings || {}) },
         musicVolume: parsed.musicVolume ?? defaults.musicVolume,
         sfxVolume: parsed.sfxVolume ?? defaults.sfxVolume,
+        playerSpeedMultiplier: parsed.playerSpeedMultiplier ?? defaults.playerSpeedMultiplier,
+        crtEffect: parsed.crtEffect ?? defaults.crtEffect,
+        screenShakeEnabled: parsed.screenShakeEnabled ?? defaults.screenShakeEnabled,
+        showFps: parsed.showFps ?? defaults.showFps,
       };
       return cachedSettings;
     }
