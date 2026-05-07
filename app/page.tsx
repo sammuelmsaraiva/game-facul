@@ -15,6 +15,7 @@ import Link from "next/link";
 export default function Home() {
   const [screen, setScreen] = useState<GameScreen>("menu");
   const [score, setScore] = useState(0);
+  const [rank, setRank] = useState<number | null>(null);
 
   const gameStateRef = useRef<GameState>(createGameState());
   const inputStateRef = useRef<InputState>(createInputState());
@@ -29,6 +30,7 @@ export default function Home() {
     setScreen(newScreen);
     if (newScreen === "gameover" || newScreen === "victory") {
       setScore(gameStateRef.current.player.score);
+      setRank(gameStateRef.current.lastRank);
     }
   }, []);
 
@@ -76,7 +78,7 @@ export default function Home() {
           />
         )}
 
-        {(screen === "ready" || screen === "playing" || screen === "paused") && (
+        {(screen === "ready" || screen === "playing" || screen === "paused" || screen === "upgrade" || screen === "phase_complete" || screen === "phase_loading") && (
           <GameCanvas
             gameState={gameStateRef}
             inputState={inputStateRef}
@@ -87,13 +89,14 @@ export default function Home() {
         {screen === "gameover" && (
           <GameOverScreen
             score={score}
+            rank={rank}
             onRetry={handleRetry}
             onMenu={handleMenu}
           />
         )}
 
         {screen === "victory" && (
-          <VictoryScreen score={score} onMenu={handleMenu} />
+          <VictoryScreen score={score} rank={rank} onMenu={handleMenu} />
         )}
 
         {screen === "settings" && (

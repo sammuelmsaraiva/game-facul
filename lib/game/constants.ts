@@ -13,14 +13,23 @@ export const MAX_FALL_SPEED = 12;
 // Player
 export const PLAYER_WIDTH = 32;
 export const PLAYER_HEIGHT = 48;
-export const PLAYER_SPEED = 2.2;       // velocidade máxima horizontal
-export const PLAYER_ACCEL = 0.8;       // aceleração por frame ao pressionar (snappy)
-export const PLAYER_DECEL = 0.6;       // desaceleração por frame ao soltar
+export const PLAYER_SPEED = 4.0;       // velocidade máxima horizontal — mais ágil que drones Z2 (3.5)
+export const PLAYER_ACCEL = 1.0;       // aceleração por frame ao pressionar (snappy)
+export const PLAYER_DECEL = 0.8;       // desaceleração por frame ao soltar
 export const PLAYER_JUMP_FORCE = -12;
 export const PLAYER_MAX_HEALTH = 5;
 export const PLAYER_START_AMMO = 20;
 export const PLAYER_SHOOT_COOLDOWN = 12; // frames
+export const PLAYER_SHOOT_COOLDOWN_RAPID = 6; // frames (upgrade tiro rápido)
+export const SHOTGUN_PELLETS = 3; // número de projéteis no leque
+export const SHOTGUN_SPREAD = 0.18; // radianos entre projéteis
 export const PLAYER_INVINCIBLE_TIME = 90; // frames (1.5s at 60fps)
+export const PLAYER_COYOTE_TIME = 7;     // frames - janela para pular após sair da plataforma (Celeste-style)
+export const PLAYER_JUMP_BUFFER = 8;     // frames - aceita pulo antes de tocar o chão (Hollow Knight-style)
+export const PLAYER_JUMP_CUT_MULT = 0.45; // multiplicador da velocidade vertical ao soltar pulo cedo (variable height)
+export const HIT_STOP_FRAMES = 4;        // frames de freeze ao matar inimigos / receber dano (juice)
+export const HIT_STOP_FRAMES_BIG = 8;    // freeze maior em impactos pesados (boss, morte do jogador)
+export const LANDING_FALL_THRESHOLD = 8; // velocidade de queda mínima para spawnar dust de pouso
 
 // Projectiles
 export const PLAYER_BULLET_SPEED = 10;
@@ -41,8 +50,8 @@ export const DRONE_SHOOT_COOLDOWN = 120; // frames
 
 export const TRACKER_WIDTH = 32;
 export const TRACKER_HEIGHT = 30;
-export const TRACKER_SPEED = 1.2; // patrol speed
-export const TRACKER_CHASE_SPEED = 4.0; // chase speed (GDD: 4.0 u/s)
+export const TRACKER_SPEED = 1.0; // patrol speed
+export const TRACKER_CHASE_SPEED = 2.5; // chase speed — reduzido para dar chance ao jogador
 export const TRACKER_HEALTH = 2;
 export const TRACKER_DETECTION_RADIUS = 360; // ~6 unidades (GDD: raio 6)
 export const TRACKER_LOST_TIME = 180; // 3s at 60fps — tempo para desistir da perseguição
@@ -66,7 +75,7 @@ export const BOSS_SPAWN_COOLDOWN_P3 = 300; // Fase 3: ondas mistas a cada 5s
 export const BOSS_BULLET_SPREAD = 0.3; // radians
 
 // Collectibles
-export const COLLECTIBLE_SIZE = 20;
+export const COLLECTIBLE_SIZE = 26;
 export const HEALTH_RESTORE = 1;
 export const AMMO_RESTORE = 10;
 export const DATA_CHIP_SCORE = 100;
@@ -88,7 +97,9 @@ export const PLATFORM_HEIGHT = 16;
 export const VOID_Y = CANVAS_HEIGHT + 200; // fall below this = death
 
 // Section widths
-export const STREETS_WIDTH = 3000;
+export const STREETS_WIDTH = 6000;        // dobrado: 1.1 (0-3000 vazia) + 1.2 (3000-6000 com inimigos+coletáveis)
+export const STREETS_DANGER_X = 1500;      // metade da 1.1: começam a aparecer inimigos
+export const STREETS_PICKUP_X = 3000;      // início da 1.2: aparecem os coletáveis
 export const DUCTS_WIDTH = 3500;
 export const BOSS_ARENA_WIDTH = CANVAS_WIDTH;
 
@@ -122,9 +133,14 @@ export const COLORS = {
   platformGlow: "#00FFFF",
   bulletPlayer: "#00FFFF",
   bulletEnemy: "#FF0040",
-  healthPickup: "#00FF41",
-  ammoPickup: "#00FFFF",
-  dataChip: "#FFE400",
+  // Coletáveis: cores cyberpunk mas SUAVIZADAS — destacam do fundo escuro
+  // sem cansar a vista como neons puros saturados
+  healthPickup: "#FF6B7A",      // rosa-coral (cura/coração) — quente, não agride
+  ammoPickup: "#7DD3C0",        // turquesa suave (munição) — fresco, baixa fadiga
+  dataChip: "#FFCC66",          // dourado quente (chip de dados) — luxo, não elétrico
+  healthPickupGlow: "#FF8A95",
+  ammoPickupGlow: "#A0E6D7",
+  dataChipGlow: "#FFD980",
   hud: "#00FFFF",
   hudHealth: "#00FF41",
   hudAmmo: "#00FFFF",
