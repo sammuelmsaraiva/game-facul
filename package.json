@@ -39,7 +39,9 @@
           "target": "portable",
           "arch": ["x64"]
         }
-      ]
+      ],
+      "signAndEditExecutable": false,
+      "signtoolOptions": null
     },
     "linux": {
       "target": ["AppImage", "deb"],
