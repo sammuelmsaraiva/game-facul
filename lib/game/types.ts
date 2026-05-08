@@ -14,7 +14,8 @@ export type GameScreen =
   | "victory"
   | "credits"
   | "controls"
-  | "settings";
+  | "settings"
+  | "howtoplay";
 
 export type PhaseId = 1 | 2 | 3;
 

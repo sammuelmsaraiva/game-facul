@@ -198,7 +198,7 @@ export function gameUpdate(state: GameState, input: InputState): GameState {
       || input.confirmPressed || input.clickPressed;
     if (anyKey) {
       state.screen = "playing";
-      startMusic();
+      startMusic(state.currentPhase);
       consumePressed(input);
     }
     return state;
@@ -221,6 +221,8 @@ export function gameUpdate(state: GameState, input: InputState): GameState {
       const nextPhase = (state.currentPhase + 1) as PhaseId;
       const advanced = advanceToPhase(state, nextPhase);
       Object.assign(state, advanced);
+      // Troca a trilha sonora para a versão da nova fase
+      startMusic(nextPhase);
       // Dispara automaticamente o upgrade correto da nova fase
       if (nextPhase === 2 && !state.zonesUnlocked.ducts) {
         state.zonesUnlocked.ducts = true;

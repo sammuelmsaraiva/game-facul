@@ -266,9 +266,10 @@ function buildPhase3(): LevelData {
     x: BOSS_ARENA_WIDTH - 390, y: GROUND_Y - 165, width: 120, height: PLATFORM_HEIGHT,
     type: "static", glowColor: COLORS.magenta,
   });
-  // Plataforma central elevada (alcançável pulando das laterais médias)
+  // Plataforma central elevada — maior e levemente mais baixa para facilitar pousagem
+  // Largura ampliada de 140 → 240 (+100px) | Y reduzido em 1px (-220 → -219)
   platforms.push({
-    x: BOSS_ARENA_WIDTH / 2 - 70, y: GROUND_Y - 220, width: 140, height: PLATFORM_HEIGHT,
+    x: BOSS_ARENA_WIDTH / 2 - 120, y: GROUND_Y - 219, width: 240, height: PLATFORM_HEIGHT,
     type: "static", glowColor: COLORS.magenta,
   });
 
