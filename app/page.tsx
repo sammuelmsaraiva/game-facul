@@ -10,6 +10,7 @@ import GameOverScreen from "@/components/game-over-screen";
 import VictoryScreen from "@/components/victory-screen";
 import SettingsScreen from "@/components/settings-screen";
 import CreditsScreen from "@/components/credits-screen";
+import HowToPlayScreen from "@/components/how-to-play-screen";
 import Link from "next/link";
 
 export default function Home() {
@@ -53,6 +54,10 @@ export default function Home() {
     setScreen("credits");
   }, []);
 
+  const handleHowToPlay = useCallback(() => {
+    setScreen("howtoplay");
+  }, []);
+
   const handleBack = useCallback(() => {
     setScreen("menu");
   }, []);
@@ -72,10 +77,15 @@ export default function Home() {
         {screen === "menu" && (
           <MenuScreen
             onPlay={handlePlay}
+            onHowToPlay={handleHowToPlay}
             onSettings={handleSettings}
             onCredits={handleCredits}
             onExit={handleExit}
           />
+        )}
+
+        {screen === "howtoplay" && (
+          <HowToPlayScreen onBack={handleBack} />
         )}
 
         {(screen === "ready" || screen === "playing" || screen === "paused" || screen === "upgrade" || screen === "phase_complete" || screen === "phase_loading") && (

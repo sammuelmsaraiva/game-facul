@@ -2,23 +2,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS } from "@/lib/game/constants";
-import { playMenuSelectSound } from "@/lib/game/audio";
+import { playMenuSelectSound, startMenuMusic } from "@/lib/game/audio";
 import { loadHighScores, formatTime } from "@/lib/game/highscores";
 
 interface MenuScreenProps {
   onPlay: () => void;
+  onHowToPlay: () => void;
   onSettings: () => void;
   onCredits: () => void;
   onExit: () => void;
 }
 
-export default function MenuScreen({ onPlay, onSettings, onCredits, onExit }: MenuScreenProps) {
+export default function MenuScreen({ onPlay, onHowToPlay, onSettings, onCredits, onExit }: MenuScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeRef = useRef(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const menuItems = [
     { label: "JOGAR", action: onPlay },
+    { label: "COMO JOGAR", action: onHowToPlay },
     { label: "CONFIGURACOES", action: onSettings },
     { label: "CREDITOS", action: onCredits },
     { label: "SAIR", action: onExit },
@@ -183,6 +185,27 @@ export default function MenuScreen({ onPlay, onSettings, onCredits, onExit }: Me
     animId = requestAnimationFrame(drawMenu);
     return () => cancelAnimationFrame(animId);
   }, [selectedIndex, menuItems]);
+
+  // Inicia música calma de menu ao montar.
+  // Tenta logo (pode estar suspenso pela política de autoplay) e também
+  // re-tenta na primeira interação (mousemove/keydown/click) para garantir.
+  useEffect(() => {
+    startMenuMusic();
+    let started = false;
+    const tryStart = () => {
+      if (started) return;
+      started = true;
+      startMenuMusic();
+    };
+    window.addEventListener("pointerdown", tryStart, { once: true });
+    window.addEventListener("keydown", tryStart, { once: true });
+    window.addEventListener("mousemove", tryStart, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", tryStart);
+      window.removeEventListener("keydown", tryStart);
+      window.removeEventListener("mousemove", tryStart);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
