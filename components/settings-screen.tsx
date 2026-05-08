@@ -153,8 +153,8 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
       ctx.fillText("ENTER para remapear | DEL para limpar", CANVAS_WIDTH - 120, controlsY);
 
       const actions: GameAction[] = ["left", "right", "jump", "down", "shoot", "pause"];
-      const rowH = 32;
-      const startY = controlsY + 18;
+      const rowH = 28;
+      const startY = controlsY + 16;
 
       for (let ai = 0; ai < actions.length; ai++) {
         const action = actions[ai];
@@ -163,9 +163,9 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
 
         // Label da ação
         ctx.fillStyle = COLORS.white + "bb";
-        ctx.font = "13px monospace";
+        ctx.font = "12px monospace";
         ctx.textAlign = "right";
-        ctx.fillText(ACTION_LABELS[action], CANVAS_WIDTH / 2 - 80, y + 20);
+        ctx.fillText(ACTION_LABELS[action], CANVAS_WIDTH / 2 - 80, y + 17);
 
         // Slot primário e secundário
         for (let slot = 0; slot < 2; slot++) {
@@ -174,8 +174,8 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
 
           const slotX = CANVAS_WIDTH / 2 - 60 + slot * 170;
           const slotW = 140;
-          const slotH = 24;
-          const slotY = y + 6;
+          const slotH = 22;
+          const slotY = y + 4;
 
           // Background do slot
           if (isRemapping) {
@@ -205,16 +205,16 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
             ctx.fillStyle = blink ? COLORS.yellow : COLORS.yellow + "60";
             ctx.font = "bold 11px monospace";
             ctx.textAlign = "center";
-            ctx.fillText("PRESSIONE...", slotX + slotW / 2, slotY + 16);
+            ctx.fillText("PRESSIONE...", slotX + slotW / 2, slotY + 15);
           } else {
             const keyCode = keys[slot];
             ctx.fillStyle = keyCode ? COLORS.cyan : COLORS.white + "25";
-            ctx.font = "bold 12px monospace";
+            ctx.font = "bold 11px monospace";
             ctx.textAlign = "center";
             ctx.fillText(
               keyCode ? getKeyDisplayName(keyCode) : slot === 1 ? "---" : "VAZIO",
               slotX + slotW / 2,
-              slotY + 16
+              slotY + 15
             );
           }
         }
@@ -240,31 +240,31 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
       const resetRow = actions.length + 8;         // 14
 
       // === SEÇÃO GAMEPLAY (Velocidade do personagem) ===
-      const gpSectionY = startY + actions.length * rowH + 30;
+      const gpSectionY = startY + actions.length * rowH + 22;
       ctx.fillStyle = COLORS.magenta;
-      ctx.font = "bold 14px monospace";
+      ctx.font = "bold 13px monospace";
       ctx.textAlign = "left";
       ctx.fillText("◆ GAMEPLAY", 120, gpSectionY);
 
       ctx.fillStyle = COLORS.white + "40";
-      ctx.font = "11px monospace";
+      ctx.font = "10px monospace";
       ctx.textAlign = "right";
       ctx.fillText("← → para ajustar", CANVAS_WIDTH - 120, gpSectionY);
 
       const isSpeedSelected = selectedRow === speedRow;
-      const speedY = gpSectionY + 18;
+      const speedY = gpSectionY + 14;
 
       // Label
       ctx.fillStyle = COLORS.white + "bb";
-      ctx.font = "13px monospace";
+      ctx.font = "12px monospace";
       ctx.textAlign = "right";
-      ctx.fillText("Velocidade Personagem", CANVAS_WIDTH / 2 - 80, speedY + 18);
+      ctx.fillText("Velocidade Personagem", CANVAS_WIDTH / 2 - 80, speedY + 15);
 
       // Barra
       const speedBarX = CANVAS_WIDTH / 2 - 60;
       const speedBarW = 300;
-      const speedBarH = 16;
-      const speedBarY = speedY + 6;
+      const speedBarH = 14;
+      const speedBarY = speedY + 5;
 
       ctx.fillStyle = isSpeedSelected ? "#1a1a30" : "#0a0a1a";
       ctx.fillRect(speedBarX, speedBarY, speedBarW, speedBarH);
@@ -294,12 +294,12 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
 
       // Percent label
       ctx.fillStyle = COLORS.white;
-      ctx.font = "bold 12px monospace";
+      ctx.font = "bold 11px monospace";
       ctx.textAlign = "left";
-      ctx.fillText(`${settings.playerSpeedMultiplier}%`, speedBarX + speedBarW + 12, speedBarY + 13);
+      ctx.fillText(`${settings.playerSpeedMultiplier}%`, speedBarX + speedBarW + 12, speedBarY + 11);
 
       // === Toggles (CRT, Shake, FPS) — 3 linhas em sequência ===
-      const toggleStartY = speedY + 36;
+      const toggleStartY = speedY + 28;
       const toggles: Array<[number, "crt" | "shake" | "fps", string, boolean]> = [
         [crtRow, "crt", "Efeito CRT (scanlines)", settings.crtEffect],
         [shakeRow, "shake", "Camera shake", settings.screenShakeEnabled],
@@ -309,15 +309,15 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
         const rowIdx = t[0];
         const enabled = t[3];
         const isSel = selectedRow === rowIdx;
-        const y = toggleStartY + i * 26;
+        const y = toggleStartY + i * 22;
         ctx.fillStyle = COLORS.white + "bb";
-        ctx.font = "13px monospace";
+        ctx.font = "12px monospace";
         ctx.textAlign = "right";
-        ctx.fillText(t[2], CANVAS_WIDTH / 2 - 80, y + 16);
+        ctx.fillText(t[2], CANVAS_WIDTH / 2 - 80, y + 14);
 
         // Botão toggle: caixa com ON/OFF
         const tx = CANVAS_WIDTH / 2 - 60;
-        const tw = 100, th = 22;
+        const tw = 96, th = 18;
         ctx.fillStyle = isSel ? "#1a1a30" : "#0a0a1a";
         ctx.fillRect(tx, y + 2, tw, th);
         ctx.strokeStyle = isSel ? COLORS.cyan : COLORS.white + "30";
@@ -331,21 +331,21 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
         ctx.fillStyle = enabled ? COLORS.neonGreen : COLORS.red + "aa";
         ctx.shadowColor = enabled ? COLORS.neonGreen : COLORS.red;
         ctx.shadowBlur = enabled ? 6 : 4;
-        ctx.font = "bold 12px monospace";
+        ctx.font = "bold 11px monospace";
         ctx.textAlign = "center";
-        ctx.fillText(enabled ? "ATIVADO" : "DESLIGADO", tx + tw / 2, y + 18);
+        ctx.fillText(enabled ? "ATIVADO" : "DESLIGADO", tx + tw / 2, y + 15);
         ctx.shadowBlur = 0;
       });
 
       // === SEÇÃO VOLUME ===
-      const volSectionY = speedY + 50 + toggles.length * 26 + 20;
+      const volSectionY = speedY + 36 + toggles.length * 22 + 14;
       ctx.fillStyle = COLORS.magenta;
-      ctx.font = "bold 14px monospace";
+      ctx.font = "bold 13px monospace";
       ctx.textAlign = "left";
       ctx.fillText("◆ VOLUME", 120, volSectionY);
 
       ctx.fillStyle = COLORS.white + "40";
-      ctx.font = "11px monospace";
+      ctx.font = "10px monospace";
       ctx.textAlign = "right";
       ctx.fillText("← → para ajustar", CANVAS_WIDTH - 120, volSectionY);
 
@@ -354,25 +354,25 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
         { type: "sfx", label: "Efeitos", value: settings.sfxVolume },
       ];
 
-      const volStartY = volSectionY + 18;
+      const volStartY = volSectionY + 14;
 
       for (let vi = 0; vi < volTypes.length; vi++) {
         const vol = volTypes[vi];
-        const y = volStartY + vi * 40;
+        const y = volStartY + vi * 30;
         const rowIdx = vi === 0 ? musicRow : sfxRow;
         const isSelected = selectedRow === rowIdx;
 
         // Label
         ctx.fillStyle = COLORS.white + "bb";
-        ctx.font = "13px monospace";
+        ctx.font = "12px monospace";
         ctx.textAlign = "right";
-        ctx.fillText(vol.label, CANVAS_WIDTH / 2 - 80, y + 18);
+        ctx.fillText(vol.label, CANVAS_WIDTH / 2 - 80, y + 15);
 
         // Barra de volume
         const barX = CANVAS_WIDTH / 2 - 60;
         const barW = 300;
-        const barH = 16;
-        const barY = y + 6;
+        const barH = 14;
+        const barY = y + 5;
 
         // Background
         ctx.fillStyle = isSelected ? "#1a1a30" : "#0a0a1a";
@@ -396,67 +396,67 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
 
         // Percentage
         ctx.fillStyle = COLORS.white;
-        ctx.font = "bold 12px monospace";
+        ctx.font = "bold 11px monospace";
         ctx.textAlign = "left";
-        ctx.fillText(`${vol.value}%`, barX + barW + 12, barY + 13);
+        ctx.fillText(`${vol.value}%`, barX + barW + 12, barY + 11);
       }
 
       // === RESETAR TUTORIAL ===
-      const resetTutY = volStartY + volTypes.length * 40 + 14;
+      const resetTutY = volStartY + volTypes.length * 30 + 12;
       const isResetTutSelected = selectedRow === resetTutorialRow;
 
       ctx.fillStyle = isResetTutSelected ? COLORS.yellow + "20" : "transparent";
-      ctx.fillRect(CANVAS_WIDTH / 2 - 140, resetTutY, 280, 30);
+      ctx.fillRect(CANVAS_WIDTH / 2 - 140, resetTutY, 280, 26);
       ctx.strokeStyle = isResetTutSelected ? COLORS.yellow : COLORS.white + "30";
       if (isResetTutSelected) {
         ctx.shadowColor = COLORS.yellow;
         ctx.shadowBlur = 6;
       }
       ctx.lineWidth = 1;
-      ctx.strokeRect(CANVAS_WIDTH / 2 - 140, resetTutY, 280, 30);
+      ctx.strokeRect(CANVAS_WIDTH / 2 - 140, resetTutY, 280, 26);
       ctx.shadowBlur = 0;
       ctx.fillStyle = isResetTutSelected ? COLORS.yellow : COLORS.white + "60";
-      ctx.font = "bold 12px monospace";
+      ctx.font = "bold 11px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("RESETAR INTRODUCOES (TUTORIAL)", CANVAS_WIDTH / 2, resetTutY + 20);
+      ctx.fillText("RESETAR INTRODUCOES (TUTORIAL)", CANVAS_WIDTH / 2, resetTutY + 18);
 
       // === LIMPAR RECORDES ===
-      const resetScY = resetTutY + 38;
+      const resetScY = resetTutY + 32;
       const isResetScSelected = selectedRow === resetScoresRow;
       ctx.fillStyle = isResetScSelected ? COLORS.magenta + "20" : "transparent";
-      ctx.fillRect(CANVAS_WIDTH / 2 - 140, resetScY, 280, 30);
+      ctx.fillRect(CANVAS_WIDTH / 2 - 140, resetScY, 280, 26);
       ctx.strokeStyle = isResetScSelected ? COLORS.magenta : COLORS.white + "30";
       if (isResetScSelected) {
         ctx.shadowColor = COLORS.magenta;
         ctx.shadowBlur = 6;
       }
       ctx.lineWidth = 1;
-      ctx.strokeRect(CANVAS_WIDTH / 2 - 140, resetScY, 280, 30);
+      ctx.strokeRect(CANVAS_WIDTH / 2 - 140, resetScY, 280, 26);
       ctx.shadowBlur = 0;
       ctx.fillStyle = isResetScSelected ? COLORS.magenta : COLORS.white + "60";
-      ctx.font = "bold 12px monospace";
+      ctx.font = "bold 11px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("LIMPAR QUADRO DE RECORDES", CANVAS_WIDTH / 2, resetScY + 20);
+      ctx.fillText("LIMPAR QUADRO DE RECORDES", CANVAS_WIDTH / 2, resetScY + 18);
 
       // === RESTAURAR PADRÃO ===
-      const resetY = resetScY + 40;
+      const resetY = resetScY + 32;
       const isResetSelected = selectedRow === resetRow;
 
       ctx.fillStyle = isResetSelected ? COLORS.red + "20" : "transparent";
-      ctx.fillRect(CANVAS_WIDTH / 2 - 120, resetY, 240, 30);
+      ctx.fillRect(CANVAS_WIDTH / 2 - 120, resetY, 240, 26);
       ctx.strokeStyle = isResetSelected ? COLORS.red : COLORS.white + "30";
       if (isResetSelected) {
         ctx.shadowColor = COLORS.red;
         ctx.shadowBlur = 6;
       }
       ctx.lineWidth = 1;
-      ctx.strokeRect(CANVAS_WIDTH / 2 - 120, resetY, 240, 30);
+      ctx.strokeRect(CANVAS_WIDTH / 2 - 120, resetY, 240, 26);
       ctx.shadowBlur = 0;
 
       ctx.fillStyle = isResetSelected ? COLORS.red : COLORS.white + "60";
-      ctx.font = "bold 13px monospace";
+      ctx.font = "bold 12px monospace";
       ctx.textAlign = "center";
-      ctx.fillText("RESTAURAR PADRAO", CANVAS_WIDTH / 2, resetY + 20);
+      ctx.fillText("RESTAURAR PADRAO", CANVAS_WIDTH / 2, resetY + 18);
 
       // Footer
       ctx.fillStyle = COLORS.white + "30";
@@ -691,23 +691,23 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
   const layout = (() => {
     const actions: GameAction[] = ["left", "right", "jump", "down", "shoot", "pause"];
     const controlsY = 80;
-    const startY = controlsY + 18;
-    const rowH = 32;
-    const gpSectionY = startY + actions.length * rowH + 30;
-    const speedY = gpSectionY + 18;
+    const startY = controlsY + 16;
+    const rowH = 28;
+    const gpSectionY = startY + actions.length * rowH + 22;
+    const speedY = gpSectionY + 14;
     const speedBarX = CANVAS_WIDTH / 2 - 60;
     const speedBarW = 300;
-    const speedBarY = speedY + 6;
-    const speedBarH = 16;
+    const speedBarY = speedY + 5;
+    const speedBarH = 14;
     // 3 toggles após o speed bar
-    const togglesStartY = speedY + 36;
-    const toggleH = 26;
+    const togglesStartY = speedY + 28;
+    const toggleH = 22;
     // Volume section após os 3 toggles
-    const volSectionY = speedY + 50 + 3 * 26 + 20;
-    const volStartY = volSectionY + 18;
-    const resetTutY = volStartY + 80 + 14;
-    const resetScY = resetTutY + 38;
-    const resetY = resetScY + 40;
+    const volSectionY = speedY + 36 + 3 * 22 + 14;
+    const volStartY = volSectionY + 14;
+    const resetTutY = volStartY + 2 * 30 + 12;
+    const resetScY = resetTutY + 32;
+    const resetY = resetScY + 32;
     return {
       startY, rowH, speedBarX, speedBarW, speedBarY, speedBarH,
       togglesStartY, toggleH, volStartY, resetTutY, resetScY, resetY,
@@ -743,8 +743,8 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
     }
     // Slots de controles
     for (let ai = 0; ai < 6; ai++) {
-      const slotY = layout.startY + ai * layout.rowH + 6;
-      if (y >= slotY && y <= slotY + 24) {
+      const slotY = layout.startY + ai * layout.rowH + 4;
+      if (y >= slotY && y <= slotY + 22) {
         for (let s = 0; s < 2; s++) {
           const slotX = CANVAS_WIDTH / 2 - 60 + s * 170;
           if (x >= slotX && x <= slotX + 140) {
@@ -772,28 +772,28 @@ export default function SettingsScreen({ onBack }: SettingsScreenProps) {
     }
     // Volume bars
     for (let v = 0; v < 2; v++) {
-      const barY = layout.volStartY + v * 40 + 6;
-      if (y >= barY && y <= barY + 16 && x >= layout.speedBarX && x <= layout.speedBarX + layout.speedBarW) {
+      const barY = layout.volStartY + v * 30 + 5;
+      if (y >= barY && y <= barY + 14 && x >= layout.speedBarX && x <= layout.speedBarX + layout.speedBarW) {
         return v === 0 ? { kind: "music" } : { kind: "sfx" };
       }
     }
     // Reset tutorial
     if (
-      y >= layout.resetTutY && y <= layout.resetTutY + 30 &&
+      y >= layout.resetTutY && y <= layout.resetTutY + 26 &&
       x >= CANVAS_WIDTH / 2 - 140 && x <= CANVAS_WIDTH / 2 + 140
     ) {
       return { kind: "reset-tutorial" };
     }
     // Limpar recordes
     if (
-      y >= layout.resetScY && y <= layout.resetScY + 30 &&
+      y >= layout.resetScY && y <= layout.resetScY + 26 &&
       x >= CANVAS_WIDTH / 2 - 140 && x <= CANVAS_WIDTH / 2 + 140
     ) {
       return { kind: "reset-scores" };
     }
     // Reset (padrão)
     if (
-      y >= layout.resetY && y <= layout.resetY + 30 &&
+      y >= layout.resetY && y <= layout.resetY + 26 &&
       x >= CANVAS_WIDTH / 2 - 120 && x <= CANVAS_WIDTH / 2 + 120
     ) {
       return { kind: "reset" };
